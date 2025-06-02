@@ -169,10 +169,12 @@ void kmain(void) {
     draw_ascii_char(fb_ptr, width, pitch, 68, 50, ';', text_color);
     draw_ascii_char(fb_ptr, width, pitch, 77, 50, ':', text_color);
     draw_ascii_char(fb_ptr, width, pitch, 86, 50, ';', text_color);
+    draw_ascii_char(fb_ptr, width, pitch, 86, 50, ';', text_color);
     
     // Or draw a complete string
     draw_string(fb_ptr, width, pitch, 50, 100, "HELLO", text_color);
     draw_string(fb_ptr, width, pitch, 50, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZ;:", text_color);
+    draw_string(fb_ptr, width, pitch, 50, 200, "''", text_color);
 
     hcf();
 }
