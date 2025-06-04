@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "font.h"
-#include "draw.h"
 #include <limine.h>
+
+#include "font.h"
+#include "draw/draw.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -11,6 +12,12 @@ static volatile LIMINE_BASE_REVISION(3);
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_framebuffer_request framebuffer_request = {
     .id = LIMINE_FRAMEBUFFER_REQUEST,
+    .revision = 0
+};
+
+__attribute__((used, section(".limine_requests")))
+static volatile struct limine_memmap_request memmap_request = {
+    .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
 };
 
@@ -79,6 +86,16 @@ uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b) {
     return (0xFF << 24) | (r << 16) | (g << 8) | b;
 }
 
+void* allocate_memory(size_t size) {
+    for (uint64_t i = 0; i < memmap_request.response->entry_count; i++) {
+        struct limine_memmap_entry *entry = memmap_request.response->entries[i];
+        if (entry->type == LIMINE_MEMMAP_USABLE && entry->length >= size) {
+            return (void*)entry->base;
+        }
+    }
+    return NULL;
+}
+
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
     uint32_t text_color = rgb_to_color(0, 0, 0);
@@ -92,6 +109,8 @@ void kmain(void) {
         || framebuffer_request.response->framebuffer_count < 1) {
         hcf();
     }
+
+    allocate_memory(1024 * 1024);
     
     struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
     uint32_t *fb_ptr = framebuffer->address;
