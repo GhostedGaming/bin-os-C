@@ -82,10 +82,6 @@ static void hcf(void) {
     }
 }
 
-uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b) {
-    return (0xFF << 24) | (r << 16) | (g << 8) | b;
-}
-
 void* allocate_memory(size_t size) {
     for (uint64_t i = 0; i < memmap_request.response->entry_count; i++) {
         struct limine_memmap_entry *entry = memmap_request.response->entries[i];
@@ -125,7 +121,8 @@ void kmain(void) {
         }
     }
 
-    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "Option 1", text_color, highlight_color);
-
-    hcf();
+    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "0", text_color, highlight_color);
+    while (1) {
+        asm volatile ("hlt");
+    }
 }

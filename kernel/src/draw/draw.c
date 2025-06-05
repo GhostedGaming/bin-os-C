@@ -120,3 +120,8 @@ void draw_string_center_screen_with_bg(uint32_t *framebuffer, int fb_width, int 
     int cy = (fb_height - FONT_HEIGHT) / 2;
     draw_string_with_bg(framebuffer, fb_width, fb_pitch, cx, cy, str, fg_color, bg_color);
 }
+
+
+uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b) {
+    return (0xFF << 24) | (r << 16) | (g << 8) | b;
+}

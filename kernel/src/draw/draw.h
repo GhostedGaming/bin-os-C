@@ -37,4 +37,6 @@ void draw_string_center_screen(uint32_t *framebuffer, int fb_width, int fb_heigh
 void draw_string_center_screen_with_bg(uint32_t *framebuffer, int fb_width, int fb_height, int fb_pitch,
                     const char *str, uint32_t fg_color, uint32_t bg_color);
 
+uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b);
+
 #endif // DRAW_H
