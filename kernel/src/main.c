@@ -121,7 +121,7 @@ void kmain(void) {
         }
     }
 
-    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "0", text_color, highlight_color);
+    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "Hello world!", text_color, highlight_color);
     while (1) {
         asm volatile ("hlt");
     }
