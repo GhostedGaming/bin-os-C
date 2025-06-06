@@ -2,9 +2,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
-
 #include "font.h"
 #include "draw/draw.h"
+#include "cpu/interrupts/idt.h"
+#include "cpu/interrupts/isr.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -96,18 +97,18 @@ void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
     uint32_t text_color = rgb_to_color(0, 0, 0);
     uint32_t highlight_color = rgb_to_color(185, 185, 189); // Grey highlight
-    
+
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
     }
-    
+
     if (framebuffer_request.response == NULL
         || framebuffer_request.response->framebuffer_count < 1) {
         hcf();
     }
 
     allocate_memory(1024 * 1024);
-    
+
     struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[0];
     uint32_t *fb_ptr = framebuffer->address;
     int width = framebuffer->width;
@@ -121,7 +122,15 @@ void kmain(void) {
         }
     }
 
-    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "Hello world!", text_color, highlight_color);
+    // Initialize interrupt handling
+    idt_init();      // Initialize the IDT
+    isr_install();   // Install ISRs for CPU exceptions
+    idt_load();      // Load the IDT into the CPU
+
+    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "Hello world! IDT loaded.", text_color, highlight_color);
+
+    asm volatile ("sti");
+
     while (1) {
         asm volatile ("hlt");
     }
