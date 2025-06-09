@@ -6,6 +6,7 @@
 #include "draw/draw.h"
 #include "cpu/interrupts/idt.h"
 #include "cpu/interrupts/isr.h"
+#include "cpu/cpuid/print_vendor.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -93,6 +94,57 @@ void* allocate_memory(size_t size) {
     return NULL;
 }
 
+// Simple integer to string conversion for displaying numbers
+int uint_to_string(unsigned int value, char* buffer, int buffer_size) {
+    if (buffer_size < 2) return 0; // Need at least space for '0' and null terminator
+    
+    if (value == 0) {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return 1;
+    }
+    
+    char temp[12]; // Enough for 32-bit unsigned int
+    int temp_pos = 0;
+    
+    // Convert digits in reverse order
+    while (value > 0 && temp_pos < 11) {
+        temp[temp_pos++] = '0' + (value % 10);
+        value /= 10;
+    }
+    
+    // Check if we have enough space in the output buffer
+    if (temp_pos >= buffer_size) {
+        return 0; // Not enough space
+    }
+    
+    // Copy digits in correct order
+    for (int i = 0; i < temp_pos; i++) {
+        buffer[i] = temp[temp_pos - 1 - i];
+    }
+    buffer[temp_pos] = '\0';
+    
+    return temp_pos;
+}
+
+// Simple string concatenation
+void string_concat(char* dest, const char* src, int dest_size) {
+    int dest_len = 0;
+    
+    // Find end of destination string
+    while (dest[dest_len] != '\0' && dest_len < dest_size - 1) {
+        dest_len++;
+    }
+    
+    // Append source string
+    int src_pos = 0;
+    while (src[src_pos] != '\0' && dest_len < dest_size - 1) {
+        dest[dest_len++] = src[src_pos++];
+    }
+    
+    dest[dest_len] = '\0';
+}
+
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
     uint32_t text_color = rgb_to_color(0, 0, 0);
@@ -114,6 +166,21 @@ void kmain(void) {
     int width = framebuffer->width;
     int height = framebuffer->height;
     int pitch = framebuffer->pitch / 4;
+    
+    // Get CPU information
+    char* vendor = process_cpu_vendor();
+    unsigned int cpu_speed = get_cpu_base_frequency();
+    
+    // Create speed string
+    char speed_str[64] = {0};
+    char speed_num[16] = {0};
+    
+    if (cpu_speed > 0) {
+        uint_to_string(cpu_speed, speed_num, sizeof(speed_num));
+        string_concat(speed_str, speed_num, sizeof(speed_str));
+    } else {
+        string_concat(speed_str, "Speed: Unknown", sizeof(speed_str));
+    }
 
     // Fill background
     for (int y = 0; y < height; y++) {
@@ -127,7 +194,11 @@ void kmain(void) {
     isr_install();   // Install ISRs for CPU exceptions
     idt_load();      // Load the IDT into the CPU
 
-    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "Hello world! IDT loaded.", text_color, highlight_color);
+    draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "Hello world!", text_color, highlight_color);
+
+    draw_string_center_screen_with_bg(fb_ptr, width, height - 96, pitch, vendor, text_color, highlight_color);
+
+    draw_string_center_screen_with_bg(fb_ptr, width, height - 48, pitch, speed_str, text_color, highlight_color);
 
     asm volatile ("sti");
 
