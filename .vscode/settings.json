@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "string": "c",
-        "idt.h": "c"
+        "idt.h": "c",
+        "gdt.h": "c",
+        "compare": "c",
+        "cstdint": "c",
+        "format": "c"
     }
 }

@@ -1,21 +1,13 @@
-#include "gdt.h"
-#include "../../serial/serial.h"
 #include <stddef.h>
+#include "../../serial/serial.h"
+#include "gdt.h"
+#include "../../memory.h"
 
 #define GDT_ENTRIES 7  // Changed to 7 to accommodate TSS taking 2 entries
 
 static struct gdt_entry gdt[GDT_ENTRIES];
 static struct gdt_ptr gdt_pointer;
 static struct tss kernel_tss;
-
-// Simple memset implementation for kernel use
-static void* my_memset(void* ptr, int value, size_t num) {
-    unsigned char* p = (unsigned char*)ptr;
-    for (size_t i = 0; i < num; i++) {
-        p[i] = (unsigned char)value;
-    }
-    return ptr;
-}
 
 // Set a GDT entry
 static void gdt_set_entry(int index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity) {
@@ -62,7 +54,7 @@ void gdt_init(void) {
     gdt_set_entry(4, 0, 0xFFFFF, 0xF2, 0xCF);
     
     // Initialize TSS - clear it first
-    my_memset(&kernel_tss, 0, sizeof(struct tss));
+    memset(&kernel_tss, 0, sizeof(struct tss));
     kernel_tss.rsp0 = 0; // This is OK for now, will be set later
     kernel_tss.iopb_offset = sizeof(struct tss);
     

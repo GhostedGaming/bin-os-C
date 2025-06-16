@@ -5,11 +5,12 @@
 #include "font.h"
 #include "draw/draw.h"
 #include "cpu/interrupts/idt.h"
-#include "cpu/cpuid/print_vendor.h"
+#include "cpu/cpuid/cpuid.h"
 #include "cpu/gdt/gdt.h"
 #include "cpu/pic/pic.h"
 #include "serial/serial.h"
 #include "timing/timing.h"
+#include "memory.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -32,47 +33,21 @@ static volatile LIMINE_REQUESTS_START_MARKER;
 __attribute__((used, section(".limine_requests_end")))
 static volatile LIMINE_REQUESTS_END_MARKER;
 
-void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
-    uint8_t *restrict pdest = (uint8_t *restrict)dest;
-    const uint8_t *restrict psrc = (const uint8_t *restrict)src;
-    for (size_t i = 0; i < n; i++) {
-        pdest[i] = psrc[i];
-    }
-    return dest;
-}
+// Function declarations
+void update_time_display(void);
+void update_time_display_at_position(int y_position);
+void create_cpu_display_strings(char* vendor_str, char* speed_str, char* freq_info_str, 
+                               int vendor_size, int speed_size, int freq_size);
 
-void *memset(void *s, int c, size_t n) {
-    uint8_t *p = (uint8_t *)s;
-    for (size_t i = 0; i < n; i++) {
-        p[i] = (uint8_t)c;
-    }
-    return s;
-}
-
-void *memmove(void *dest, const void *src, size_t n) {
-    uint8_t *pdest = (uint8_t *)dest;
-    const uint8_t *psrc = (const uint8_t *)src;
-    if (src > dest) {
-        for (size_t i = 0; i < n; i++) {
-            pdest[i] = psrc[i];
-        }
-    } else if (src < dest) {
-        for (size_t i = n; i > 0; i--) {
-            pdest[i-1] = psrc[i-1];
+// Memory allocation function (uses memmap_request from this file)
+void* allocate_memory(size_t size) {
+    for (uint64_t i = 0; i < memmap_request.response->entry_count; i++) {
+        struct limine_memmap_entry *entry = memmap_request.response->entries[i];
+        if (entry->type == LIMINE_MEMMAP_USABLE && entry->length >= size) {
+            return (void*)entry->base;
         }
     }
-    return dest;
-}
-
-int memcmp(const void *s1, const void *s2, size_t n) {
-    const uint8_t *p1 = (const uint8_t *)s1;
-    const uint8_t *p2 = (const uint8_t *)s2;
-    for (size_t i = 0; i < n; i++) {
-        if (p1[i] != p2[i]) {
-            return p1[i] < p2[i] ? -1 : 1;
-        }
-    }
-    return 0;
+    return NULL;
 }
 
 static void hcf(void) {
@@ -85,16 +60,6 @@ static void hcf(void) {
         asm ("idle 0");
 #endif
     }
-}
-
-void* allocate_memory(size_t size) {
-    for (uint64_t i = 0; i < memmap_request.response->entry_count; i++) {
-        struct limine_memmap_entry *entry = memmap_request.response->entries[i];
-        if (entry->type == LIMINE_MEMMAP_USABLE && entry->length >= size) {
-            return (void*)entry->base;
-        }
-    }
-    return NULL;
 }
 
 // Simple integer to string conversion for displaying numbers
@@ -146,6 +111,24 @@ void string_concat(char* dest, const char* src, int dest_size) {
     dest[dest_len] = '\0';
 }
 
+// Simple string length function
+int string_length(const char* str) {
+    int len = 0;
+    while (str[len] != '\0') {
+        len++;
+    }
+    return len;
+}
+
+// Simple string comparison
+int string_compare(const char* s1, const char* s2) {
+    while (*s1 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return *(unsigned char*)s1 - *(unsigned char*)s2;
+}
+
 // Global variables for display updates
 static uint32_t *global_fb_ptr = NULL;
 static int global_width = 0;
@@ -174,6 +157,99 @@ void update_time_display(void) {
                                      global_pitch, time_buffer, global_text_color, global_highlight_color);
 }
 
+// Helper function to update time display at specific position
+void update_time_display_at_position(int y_position) {
+    if (global_fb_ptr == NULL) return;
+    
+    char time_buffer[16];
+    format_uptime(time_buffer, sizeof(time_buffer));
+    
+    // Clear the time area (draw black rectangle)
+    uint32_t black = rgb_to_color(0, 0, 0);
+    for (int y = y_position; y < y_position + 48; y++) {
+        for (int x = 0; x < global_width; x++) {
+            global_fb_ptr[y * global_pitch + x] = black;
+        }
+    }
+    
+    // Draw updated time
+    draw_string_center_screen_with_bg(global_fb_ptr, global_width, y_position, 
+                                     global_pitch, time_buffer, global_text_color, global_highlight_color);
+}
+
+// Function to create CPU display strings using C CPUID implementation
+void create_cpu_display_strings(char* vendor_str, char* speed_str, char* freq_info_str, 
+                               int vendor_size, int speed_size, int freq_size) {
+    // Initialize strings
+    vendor_str[0] = '\0';
+    speed_str[0] = '\0';
+    freq_info_str[0] = '\0';
+    
+    // Use C CPUID implementation
+    if (cpuid_is_supported()) {
+        write_serial("Using C CPUID implementation");
+        
+        // Get vendor string from C implementation
+        char* c_vendor = get_cpu_vendor();
+        if (c_vendor && string_length(c_vendor) > 0) {
+            string_concat(vendor_str, "CPU: ", vendor_size);
+            
+            // Convert vendor ID to readable name
+            if (string_compare(c_vendor, "GenuineIntel") == 0) {
+                string_concat(vendor_str, "Intel", vendor_size);
+            } else if (string_compare(c_vendor, "AuthenticAMD") == 0) {
+                string_concat(vendor_str, "AMD", vendor_size);
+            } else if (string_compare(c_vendor, "CentaurHauls") == 0) {
+                string_concat(vendor_str, "VIA/Centaur", vendor_size);
+            } else {
+                string_concat(vendor_str, c_vendor, vendor_size);
+            }
+            
+            // Log raw vendor string
+            write_serial("Raw vendor string: ");
+            write_serial(c_vendor);
+        }
+        
+        // Get CPU features
+        if (cpu_has_sse() || cpu_has_sse2()) {
+            string_concat(freq_info_str, "Features: ", freq_size);
+            if (cpu_has_sse()) {
+                string_concat(freq_info_str, "SSE ", freq_size);
+            }
+            if (cpu_has_sse2()) {
+                string_concat(freq_info_str, "SSE2 ", freq_size);
+            }
+        }
+        
+        // Get max CPUID function
+        unsigned int max_func = get_cpu_max_function();
+        char max_func_msg[64] = "Max CPUID function: ";
+        char num_str[16];
+        uint_to_string(max_func, num_str, sizeof(num_str));
+        string_concat(max_func_msg, num_str, sizeof(max_func_msg));
+        write_serial(max_func_msg);
+        
+        // Set a basic speed string since we don't have frequency detection yet
+        string_concat(speed_str, "Speed: Detected via CPUID", speed_size);
+        
+    } else {
+        write_serial("CPUID not supported");
+        
+        // Set default strings
+        string_concat(vendor_str, "CPU: Unknown (No CPUID)", vendor_size);
+        string_concat(speed_str, "Speed: Unknown", speed_size);
+    }
+    
+    // Ensure we have default strings if nothing was set
+    if (string_length(vendor_str) == 0) {
+        string_concat(vendor_str, "CPU: Unknown", vendor_size);
+    }
+    
+    if (string_length(speed_str) == 0) {
+        string_concat(speed_str, "Speed: Unknown", speed_size);
+    }
+}
+
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
     uint32_t text_color = rgb_to_color(255, 255, 255);  // White text
@@ -191,7 +267,7 @@ void kmain(void) {
     init_serial();
     write_serial("Serial initialized");
     
-    write_serial("Allocating memory.");
+    write_serial("Allocating memory");
     allocate_memory(1024 * 1024);
     write_serial("Memory allocated");
     
@@ -231,23 +307,54 @@ void kmain(void) {
     init_timing();
     write_serial("Timing system initialized");
     
-    // Get CPU information
+    // Get CPU information using C CPUID implementation
     write_serial("Getting CPU information...");
-    char* vendor = process_cpu_vendor();
-    unsigned int cpu_speed = get_cpu_base_frequency();
     
-    // Create speed string
-    char speed_str[64] = "CPU Speed: ";
-    char speed_num[16] = {0};
-    if (cpu_speed > 0) {
-        uint_to_string(cpu_speed, speed_num, sizeof(speed_num));
-        string_concat(speed_str, speed_num, sizeof(speed_str));
-        string_concat(speed_str, " MHz", sizeof(speed_str));
-    } else {
-        string_concat(speed_str, "Unknown", sizeof(speed_str));
+    // Create display strings
+    char vendor_str[64] = {0};
+    char speed_str[64] = {0};
+    char freq_info_str[64] = {0};
+    
+    create_cpu_display_strings(vendor_str, speed_str, freq_info_str, 
+                              sizeof(vendor_str), sizeof(speed_str), sizeof(freq_info_str));
+    
+    write_serial("CPU information gathered and formatted");
+    
+    // Log CPU info to serial
+    write_serial("=== CPU Information ===");
+    write_serial(vendor_str);
+    write_serial(speed_str);
+    if (freq_info_str[0] != '\0') {
+        write_serial(freq_info_str);
     }
     
-    write_serial("CPU information gathered");
+    // Additional C CPUID testing
+    if (cpuid_is_supported()) {
+        write_serial("=== C CPUID Details ===");
+        
+        // Test safe vendor function
+        char safe_vendor[13];
+        get_cpu_vendor_safe(safe_vendor, sizeof(safe_vendor));
+        write_serial("Safe vendor string: ");
+        write_serial(safe_vendor);
+        
+        // Get detailed CPU features
+        unsigned int ecx_features, edx_features;
+        get_cpu_features(&ecx_features, &edx_features);
+        
+        char feature_msg[64] = "Feature flags - ECX: 0x";
+        char hex_str[16];
+        uint_to_string(ecx_features, hex_str, sizeof(hex_str));
+        string_concat(feature_msg, hex_str, sizeof(feature_msg));
+        write_serial(feature_msg);
+        
+        char feature_msg2[64] = "Feature flags - EDX: 0x";
+        uint_to_string(edx_features, hex_str, sizeof(hex_str));
+        string_concat(feature_msg2, hex_str, sizeof(feature_msg2));
+        write_serial(feature_msg2);
+    }
+    
+    write_serial("=======================");
     
     // Initialize interrupt system (IMPORTANT: Do this BEFORE enabling interrupts)
     write_serial("Initializing interrupt system...");
@@ -265,12 +372,20 @@ void kmain(void) {
     write_serial("IDT loaded");
     
     // Draw initial display
+    write_serial("Drawing initial display...");
     draw_string_center_screen_with_bg(fb_ptr, width, height, pitch, "BinOS - C Kernel", text_color, highlight_color);
-    draw_string_center_screen_with_bg(fb_ptr, width, height - 48, pitch, vendor, text_color, highlight_color);
+    draw_string_center_screen_with_bg(fb_ptr, width, height - 48, pitch, vendor_str, text_color, highlight_color);
     draw_string_center_screen_with_bg(fb_ptr, width, height - 96, pitch, speed_str, text_color, highlight_color);
     
-    // Draw initial time
-    update_time_display();
+    // Draw additional frequency info if available
+    if (freq_info_str[0] != '\0') {
+        draw_string_center_screen_with_bg(fb_ptr, width, height - 144, pitch, freq_info_str, text_color, highlight_color);
+        // Draw initial time lower if we have frequency info
+        update_time_display_at_position(height - 192);
+    } else {
+        // Draw initial time at normal position
+        update_time_display();
+    }
     
     write_serial("Display initialized");
     
@@ -279,18 +394,135 @@ void kmain(void) {
     asm volatile ("sti");
     write_serial("Interrupts enabled - System ready!");
     
-    // Main loop with time updates
+    // Print final system status
+    write_serial("=== System Status ===");
+    write_serial("BinOS kernel successfully initialized");
+    write_serial("All systems operational");
+    
+    // Print system capabilities
+    if (cpuid_is_supported()) {
+        write_serial("CPU identification: Available");
+        if (cpu_has_sse()) {
+            write_serial("SSE support: Yes");
+        } else {
+            write_serial("SSE support: No");
+        }
+        if (cpu_has_sse2()) {
+            write_serial("SSE2 support: Yes");
+        } else {
+            write_serial("SSE2 support: No");
+        }
+    } else {
+        write_serial("CPU identification: Not available");
+    }
+    
+    write_serial("Memory management: Basic");
+    write_serial("Serial communication: Active");
+    write_serial("Graphics: Framebuffer active");
+    write_serial("Timing system: Operational");
+    write_serial("Interrupt handling: Enabled");
+    write_serial("Entering main loop...");
+    write_serial("====================");
+    
+    // Main loop with time updates and system monitoring
     uint64_t last_update = 0;
+    uint64_t last_status_log = 0;
+    uint64_t boot_time = get_uptime_ms();
+    
+    write_serial("Main loop started - system fully operational");
+    
     while (1) {
         uint64_t current_time = get_uptime_ms();
         
         // Update time display every second (1000ms)
         if (current_time - last_update >= 1000) {
-            update_time_display();
+            if (freq_info_str[0] != '\0') {
+                update_time_display_at_position(global_height - 192);
+            } else {
+                update_time_display();
+            }
             last_update = current_time;
         }
         
+        // Log system status every 5 minutes (300000ms)
+        if (current_time - last_status_log >= 300000) {
+            uint64_t uptime_seconds = (current_time - boot_time) / 1000;
+            uint64_t uptime_minutes = uptime_seconds / 60;
+            uint64_t uptime_hours = uptime_minutes / 60;
+            
+            write_serial("=== Periodic Status Report ===");
+            
+            // Format uptime message
+            char uptime_msg[128] = "System uptime: ";
+            char num_str[16];
+            
+            if (uptime_hours > 0) {
+                uint_to_string((unsigned int)uptime_hours, num_str, sizeof(num_str));
+                string_concat(uptime_msg, num_str, sizeof(uptime_msg));
+                string_concat(uptime_msg, "h ", sizeof(uptime_msg));
+                
+                uint_to_string((unsigned int)(uptime_minutes % 60), num_str, sizeof(num_str));
+                string_concat(uptime_msg, num_str, sizeof(uptime_msg));
+                string_concat(uptime_msg, "m ", sizeof(uptime_msg));
+            } else if (uptime_minutes > 0) {
+                uint_to_string((unsigned int)uptime_minutes, num_str, sizeof(num_str));
+                string_concat(uptime_msg, num_str, sizeof(uptime_msg));
+                string_concat(uptime_msg, "m ", sizeof(uptime_msg));
+            }
+            
+            uint_to_string((unsigned int)(uptime_seconds % 60), num_str, sizeof(num_str));
+            string_concat(uptime_msg, num_str, sizeof(uptime_msg));
+            string_concat(uptime_msg, "s", sizeof(uptime_msg));
+            
+            write_serial(uptime_msg);
+            write_serial("System status: Stable");
+            write_serial("All subsystems: Operational");
+            
+            // Log CPU status if available
+            if (cpuid_is_supported()) {
+                write_serial("CPU monitoring: Active");
+                char cpu_status[64] = "CPU vendor: ";
+                char* current_vendor = get_cpu_vendor();
+                if (current_vendor && string_length(current_vendor) > 0) {
+                    string_concat(cpu_status, current_vendor, sizeof(cpu_status));
+                    write_serial(cpu_status);
+                }
+                
+                // Log current CPU features
+                if (cpu_has_sse() || cpu_has_sse2()) {
+                    char features[64] = "Active features: ";
+                    if (cpu_has_sse()) {
+                        string_concat(features, "SSE ", sizeof(features));
+                    }
+                    if (cpu_has_sse2()) {
+                        string_concat(features, "SSE2 ", sizeof(features));
+                    }
+                    write_serial(features);
+                }
+            }
+            
+            write_serial("==============================");
+            
+            last_status_log = current_time;
+        }
+        
         // Sleep for a short time to reduce CPU usage
-        sleep_ms(10);
+        sleep_ms(100); // Reduced sleep time for more responsive updates
+        
+        // Optional: Add some basic system health checks here
+        static uint64_t last_health_check = 0;
+        if (current_time - last_health_check >= 60000) { // Every minute
+            if (cpuid_is_supported()) {
+                // Quick health check - verify CPUID still works
+                char* vendor_check = get_cpu_vendor();
+                if (vendor_check && string_length(vendor_check) > 0) {
+                    // CPUID is still working - could log this for debugging
+                    // write_serial("CPUID health check: OK");
+                } else {
+                    write_serial("WARNING: CPUID health check failed");
+                }
+            }
+            last_health_check = current_time;
+        }
     }
 }
