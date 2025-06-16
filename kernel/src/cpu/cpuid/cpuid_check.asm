@@ -1,15 +1,19 @@
-section .data
-    vendor_string db 13 dup(0)     ; 12 chars + null terminator
-    cpu_speed_mhz dd 0              ; Store CPU speed in MHz
+[BITS 64]
 
 section .text
     global check_cpu_and_get_vendor
     global get_cpu_vendor_string
     global check_cpu_and_call_c
     global get_cpu_vendor_info
-    global get_cpu_speed_mhz        ; New function to get CPU speed
-    global get_cpu_frequencies      ; New function to get detailed frequency info
-    extern process_cpu_vendor       ; External C function declaration
+    global get_cpu_speed_mhz
+    global get_cpu_frequencies
+    extern process_cpu_vendor
+
+section .bss
+    vendor_string resb 13           ; 12 chars + null terminator
+    cpu_speed_mhz resd 1            ; Store CPU speed in MHz
+
+section .text
 
 ; Function: check_cpu_and_get_vendor
 ; Returns: 1 if CPUID supported and vendor string retrieved, 0 otherwise
@@ -36,11 +40,12 @@ check_cpu_and_get_vendor:
     xor eax, eax                    ; CPUID function 0 (vendor string)
     cpuid
     
-    ; Store vendor string (EBX, EDX, ECX contain the 12-character vendor string)
-    mov [vendor_string], ebx        ; First 4 characters
-    mov [vendor_string + 4], edx    ; Middle 4 characters  
-    mov [vendor_string + 8], ecx    ; Last 4 characters
-    mov byte [vendor_string + 12], 0 ; Null terminator
+    ; Store vendor string using RIP-relative addressing
+    lea rdi, [rel vendor_string]
+    mov [rdi], ebx                  ; First 4 characters
+    mov [rdi + 4], edx              ; Middle 4 characters  
+    mov [rdi + 8], ecx              ; Last 4 characters
+    mov byte [rdi + 12], 0          ; Null terminator
     
     mov rax, 1                      ; Return 1 for success
     jmp check_cleanup
@@ -59,7 +64,7 @@ get_cpu_vendor_string:
     push rbp
     mov rbp, rsp
     
-    mov rax, vendor_string          ; Return pointer to vendor string
+    lea rax, [rel vendor_string]    ; Return pointer to vendor string using RIP-relative
     
     pop rbp
     ret
@@ -92,7 +97,8 @@ get_cpu_speed_mhz:
     test eax, eax
     jz try_alternative_method       ; If 0, try alternative
     
-    mov [cpu_speed_mhz], eax
+    lea rdi, [rel cpu_speed_mhz]
+    mov [rdi], eax
     jmp speed_cleanup
 
 try_alternative_method:
@@ -110,29 +116,31 @@ try_alternative_method:
     jz estimate_from_brand_string
     
     ; Simple calculation (may need refinement for accuracy)
+    push rax                        ; Save original EAX
     mov eax, ecx
     mul ebx                         ; EDX:EAX = ECX * EBX
-    ; For simplicity, we'll just use the lower 32 bits
-    ; In practice, you'd want to handle the full 64-bit division
-    mov ecx, [rsp + 24]            ; Restore original ECX from stack
+    pop rcx                         ; Get original EAX into ECX
     xor edx, edx
-    div ecx                        ; EAX = (ECX * EBX) / original_EAX
+    div ecx                         ; EAX = (ECX * EBX) / original_EAX
     
     ; Convert from Hz to MHz (divide by 1,000,000)
     mov ecx, 1000000
     xor edx, edx
     div ecx
     
-    mov [cpu_speed_mhz], eax
+    lea rdi, [rel cpu_speed_mhz]
+    mov [rdi], eax
     jmp speed_cleanup
 
 estimate_from_brand_string:
     ; Fallback: return 0 to indicate we couldn't determine speed
     xor eax, eax
-    mov [cpu_speed_mhz], eax
+    lea rdi, [rel cpu_speed_mhz]
+    mov [rdi], eax
 
 speed_cleanup:
-    mov eax, [cpu_speed_mhz]        ; Return the speed in EAX
+    lea rdi, [rel cpu_speed_mhz]
+    mov eax, [rdi]                  ; Return the speed in EAX
     pop rdx
     pop rcx
     pop rbx
@@ -141,7 +149,8 @@ speed_cleanup:
 
 no_speed_support:
     xor eax, eax                    ; Return 0 for no support
-    mov [cpu_speed_mhz], eax
+    lea rdi, [rel cpu_speed_mhz]
+    mov [rdi], eax
     jmp speed_cleanup
 
 ; Function: get_cpu_frequencies
@@ -235,14 +244,15 @@ check_cpu_and_call_c:
     xor eax, eax                    ; CPUID function 0 (vendor string)
     cpuid
     
-    ; Store vendor string (EBX, EDX, ECX contain the 12-character vendor string)
-    mov [vendor_string], ebx        ; First 4 characters
-    mov [vendor_string + 4], edx    ; Middle 4 characters  
-    mov [vendor_string + 8], ecx    ; Last 4 characters
-    mov byte [vendor_string + 12], 0 ; Null terminator
+    ; Store vendor string using RIP-relative addressing
+    lea rdi, [rel vendor_string]
+    mov [rdi], ebx                  ; First 4 characters
+    mov [rdi + 4], edx              ; Middle 4 characters  
+    mov [rdi + 8], ecx              ; Last 4 characters
+    mov byte [rdi + 12], 0          ; Null terminator
     
     ; Call external C function with vendor string (System V AMD64 ABI)
-    mov rdi, vendor_string          ; First argument in RDI
+    lea rdi, [rel vendor_string]    ; First argument in RDI
     call process_cpu_vendor         ; Call C function
     
     mov rax, 1                      ; Return 1 for success

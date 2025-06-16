@@ -41,10 +41,6 @@ cpu_info_t get_cpu_info(void) {
     // Get CPU speed information
     info.base_freq_mhz = get_cpu_speed_mhz();
     
-    // Get detailed frequency information
-    // Note: This requires inline assembly or a separate assembly function
-    // For now, we'll use the base frequency function
-    
     return info;
 }
 
@@ -60,7 +56,6 @@ unsigned int get_cpu_base_frequency(void) {
 }
 
 // Function to get detailed frequency information
-// This would typically use inline assembly to call the get_cpu_frequencies function
 void get_detailed_cpu_frequencies(unsigned int* base_freq, unsigned int* max_freq, unsigned int* bus_freq) {
     // This requires inline assembly to call the assembly function
     // For demonstration, we'll use a simplified approach
@@ -83,4 +78,15 @@ void get_detailed_cpu_frequencies(unsigned int* base_freq, unsigned int* max_fre
     if (max_freq) *max_freq = max;
     if (bus_freq) *bus_freq = bus;
     */
+}
+
+// Print complete CPU information
+void print_cpu_info(void) {
+    // This function would need access to a serial or display output
+    // For now, it's just a placeholder
+    cpu_info_t info = get_cpu_info();
+    
+    // In a real implementation, you'd print this information
+    // For now, we'll just ensure the function exists
+    (void)info; // Suppress unused variable warning
 }
