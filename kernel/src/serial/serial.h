@@ -1,9 +1,8 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include <stdint.h>
-
 int init_serial(void);
 void write_serial(const char *str);
+void serial_printf(const char *format, ...);
 
-#endif // SERIAL_H
+#endif

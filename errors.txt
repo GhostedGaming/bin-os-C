@@ -1,0 +1,950 @@
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../memory.h: At top level:
+src/limine.h:64:14: error: redefinition of ‘limine_base_revision’
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/limine.h:64:14: note: previous definition of ‘limine_base_revision’ with type ‘volatile uint64_t[3]’ {aka ‘volatile long unsigned int[3]’}
+   64 |     uint64_t limine_base_revision[3] = { 0xf9562b2d5c95a6c8, 0x6a7b384944536bdc, (N) };
+      |              ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:17:68: note: in expansion of macro ‘LIMINE_BASE_REVISION’
+   17 | __attribute__((used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: error: redefinition of ‘framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:19:102: note: previous definition of ‘framebuffer_request’ with type ‘volatile struct limine_framebuffer_request’
+   19 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_framebuffer_request framebuffer_request = {
+      |                                                                                                      ^~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: error: redefinition of ‘memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:23:97: note: previous definition of ‘memmap_request’ with type ‘volatile struct limine_memmap_request’
+   23 | __attribute__((used, section(".limine_requests"))) static volatile struct limine_memmap_request memmap_request = {
+      |                                                                                                 ^~~~~~~~~~~~~~
+src/limine.h:56:14: error: redefinition of ‘limine_requests_start_marker’
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:56:14: note: previous definition of ‘limine_requests_start_marker’ with type ‘volatile uint64_t[4]’ {aka ‘volatile long unsigned int[4]’}
+   56 |     uint64_t limine_requests_start_marker[4] = { 0xf6b8f4b39de7d1ae, 0xfab91a6940fcb9cf, \
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:27:74: note: in expansion of macro ‘LIMINE_REQUESTS_START_MARKER’
+   27 | __attribute__((used, section(".limine_requests_start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: error: redefinition of ‘limine_requests_end_marker’
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/limine.h:59:14: note: previous definition of ‘limine_requests_end_marker’ with type ‘volatile uint64_t[2]’ {aka ‘volatile long unsigned int[2]’}
+   59 |     uint64_t limine_requests_end_marker[2] = { 0xadc0e0531bb10d03, 0x9572709f31764c62 };
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:29:72: note: in expansion of macro ‘LIMINE_REQUESTS_END_MARKER’
+   29 | __attribute__((used, section(".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: error: redefinition of ‘timer_counter’
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:31:26: note: previous definition of ‘timer_counter’ with type ‘uint64_t’ {aka ‘volatile long unsigned int’}
+   31 | static volatile uint64_t timer_counter = 0;
+      |                          ^~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: error: redefinition of ‘init_memory_management’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:34:6: note: previous definition of ‘init_memory_management’ with type ‘void(void)’
+   34 | void init_memory_management(void)
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:73:13: error: redefinition of ‘hcf’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:73:13: note: previous definition of ‘hcf’ with type ‘void(void)’
+   73 | static void hcf(void)
+      |             ^~~
+src/cpu/gdt/../../memory.h:87:6: error: redefinition of ‘check_stack_canary’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:87:6: note: previous definition of ‘check_stack_canary’ with type ‘void()’
+   87 | void check_stack_canary() {
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: error: redefinition of ‘clear_stack_area’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:96:6: note: previous definition of ‘clear_stack_area’ with type ‘void(void)’
+   96 | void clear_stack_area(void) {
+      |      ^~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: error: redefinition of ‘ulong_to_str’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:102:7: note: previous definition of ‘ulong_to_str’ with type ‘char *(long unsigned int,  char *)’
+  102 | char *ulong_to_str(unsigned long value, char *buffer)
+      |       ^~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: error: redefinition of ‘build_speed_string’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:129:7: note: previous definition of ‘build_speed_string’ with type ‘char *(long unsigned int,  char *)’
+  129 | char *build_speed_string(unsigned long speed, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: error: redefinition of ‘build_freq_hz_string’
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:187:7: note: previous definition of ‘build_freq_hz_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  187 | char *build_freq_hz_string(uint64_t freq_hz, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: error: redefinition of ‘build_timer_string’
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:208:7: note: previous definition of ‘build_timer_string’ with type ‘char *(uint64_t,  char *)’ {aka ‘char *(long unsigned int,  char *)’}
+  208 | char *build_timer_string(uint64_t counter, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: error: redefinition of ‘build_time_string’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:229:7: note: previous definition of ‘build_time_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  229 | char *build_time_string(unsigned char hour, unsigned char minute, unsigned char second, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: error: redefinition of ‘build_date_string’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:279:7: note: previous definition of ‘build_date_string’ with type ‘char *(unsigned char,  unsigned char,  unsigned char,  char *)’
+  279 | char *build_date_string(unsigned char day, unsigned char month, unsigned char year, char *buffer)
+      |       ^~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: error: redefinition of ‘update_screen_info’
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:328:6: note: previous definition of ‘update_screen_info’ with type ‘void(uint32_t *, int,  int,  int,  uint32_t,  uint32_t)’ {aka ‘void(unsigned int *, int,  int,  int,  unsigned int,  unsigned int)’}
+  328 | void update_screen_info(uint32_t *fb_ptr, int width, int height, int pitch,
+      |      ^~~~~~~~~~~~~~~~~~
+src/cpu/gdt/../../memory.h:399:6: error: redefinition of ‘kmain’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h:399:6: note: previous definition of ‘kmain’ with type ‘void(void)’
+  399 | void kmain(void)
+      |      ^~~~~
+src/cpu/gdt/../../memory.h: In function ‘kmain’:
+src/cpu/gdt/../../memory.h:470:48: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  470 |         if ((height - 1) * pitch + (width - 1) < (uint64_t)height * pitch) {
+      |                                                ^
+src/cpu/gdt/../../font.h: At top level:
+src/cpu/gdt/../../font.h:488:23: warning: ‘font_table’ defined but not used [-Wunused-variable]
+  488 | static const uint8_t *font_table[128] = {
+      |                       ^~~~~~~~~~
+make[1]: *** [GNUmakefile:173: obj-x86_64/cpu/gdt/gdt.c.o] Error 1
+make[1]: Leaving directory '/home/gavin/Documents/GitHub/bin-os-C/kernel'
+make: *** [GNUmakefile:165: kernel] Error 2
+[gavin@archlinux bin-os-C]$ 

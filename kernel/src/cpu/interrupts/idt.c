@@ -1,6 +1,8 @@
+#include <stddef.h>
 #include "idt.h"
 #include "../pic/pic.h"
 #include "../../serial/serial.h"
+#include "../keyboard/keyboard.h"
 
 // IDT array and register - aligned for performance
 __attribute__((aligned(0x10)))
@@ -128,27 +130,25 @@ void isr_handler(uint64_t interrupt_number) {
             break;
     }
     
-    // For now, just halt the system
     write_serial("System halted due to exception");
     __asm__ volatile ("cli; hlt");
 }
 
 void irq_handler(uint64_t irq_number) {
-    // Handle hardware interrupt
-    switch(irq_number) {
-        case 32: // Timer interrupt
-            // Don't spam serial with timer messages
+    uint64_t actual_irq = irq_number - 32;
+
+    write_serial("IRQ_handler");
+    
+    switch(actual_irq) {
+        case 0:
             break;
-        case 33: // Keyboard interrupt
-            write_serial("Keyboard interrupt");
+        case 1:
+            write_serial("Keyboard interrupts");
+            keyboard_handler(NULL);
             break;
         default:
-            write_serial("Unknown hardware interrupt");
             break;
     }
     
-    // Send EOI to PIC
-    if (irq_number >= 32 && irq_number <= 47) {
-        PIC_sendEOI(irq_number - 32);
-    }
+    PIC_sendEOI(actual_irq);
 }
