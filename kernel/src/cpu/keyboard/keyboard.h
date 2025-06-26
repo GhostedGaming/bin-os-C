@@ -12,6 +12,7 @@ struct interrupt_registers {
 };
 
 // Function declarations
+void init_keyboard(void);
 void keyboard_handler(struct interrupt_registers *regs);
 
 #endif // KEYBOARD_H

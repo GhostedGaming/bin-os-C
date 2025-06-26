@@ -28,5 +28,7 @@ void idt_load(void);
 // Interrupt handlers (called from C)
 void isr_handler(uint64_t interrupt_number);
 void irq_handler(uint64_t irq_number);
+void init_keyboard_irq(void);
+void init_timer_irq(void);
 
 #endif

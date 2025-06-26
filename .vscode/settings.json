@@ -5,6 +5,8 @@
         "gdt.h": "c",
         "compare": "c",
         "cstdint": "c",
-        "format": "c"
+        "format": "c",
+        "serial.h": "c",
+        "keyboard.h": "c"
     }
 }

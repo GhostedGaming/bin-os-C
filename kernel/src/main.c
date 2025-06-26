@@ -8,6 +8,7 @@
 #include "cpu/cpuid/cpuid.h"
 #include "cpu/gdt/gdt.h"
 #include "cpu/pic/pic.h"
+#include "cpu/keyboard/keyboard.h"
 #include "serial/serial.h"
 #include "timing/timing.h"
 #include "memory.h"
@@ -79,7 +80,11 @@ void kmain(void) {
     __asm__ volatile ("sti");  // Enable interrupts
     write_serial("Interrupts enabled");
 
+    init_timer_irq();
+
     init_timing();
+
+    init_keyboard();
 
     draw_string_center_screen_with_bg("New binbows", text_color, text_background);
     
