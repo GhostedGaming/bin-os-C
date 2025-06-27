@@ -12,6 +12,22 @@ static bool shift_pressed = false;
 static bool ctrl_pressed = false;
 static bool alt_pressed = false;
 
+// Terminal cursor position
+static uint16_t term_cursor_x = 0;
+static uint16_t term_cursor_y = 0;
+
+// Define colors
+#define COLOR_WHITE     0xFFFFFFFF
+#define COLOR_BLACK     0xFF000000
+#define COLOR_GREEN     0xFF00FF00
+#define COLOR_RED       0xFFFF0000
+#define COLOR_BLUE      0xFF0000FF
+#define COLOR_YELLOW    0xFFFFFF00
+
+// Terminal dimensions (in characters)
+static int term_width_chars = 0;
+static int term_height_chars = 0;
+
 // Special key codes
 #define UNKNOWN 0xFFFFFFFF
 #define ESC     0xFFFFFFFF - 1
@@ -70,6 +86,83 @@ static const char shift_map[128] = {
     ['/'] = '?'
 };
 
+// Helper function to scroll the screen up by one line
+static void scroll_screen_up(void) {
+    // This is a simple implementation - you might want to optimize this
+    // For now, we'll just clear the screen and reset cursor to top
+    // In a real implementation, you'd copy pixel data up
+    
+    // Move cursor to top-left for now (simple approach)
+    if (term_cursor_y >= term_height_chars - 1) {
+        // Clear screen and reset cursor
+        clear_screen(COLOR_BLACK);
+        term_cursor_x = 0;
+        term_cursor_y = 0;
+    }
+}
+
+// Helper function to advance cursor position
+static void advance_cursor(void) {
+    term_cursor_x++;
+    if (term_cursor_x >= term_width_chars) {
+        term_cursor_x = 0;
+        term_cursor_y++;
+        if (term_cursor_y >= term_height_chars) {
+            scroll_screen_up();
+        }
+    }
+}
+
+// Helper function to handle newline
+static void handle_newline(void) {
+    term_cursor_x = 0;
+    term_cursor_y++;
+    if (term_cursor_y >= term_height_chars) {
+        scroll_screen_up();
+    }
+}
+
+// Helper function to handle backspace
+static void handle_backspace(void) {
+    if (term_cursor_x > 0) {
+        term_cursor_x--;
+        // Clear the character at the current position
+        int pixel_x = term_cursor_x * FONT_WIDTH;
+        int pixel_y = term_cursor_y * FONT_HEIGHT;
+        draw_ascii_char_with_bg(pixel_x, pixel_y, ' ', COLOR_WHITE, COLOR_BLACK);
+    } else if (term_cursor_y > 0) {
+        // Move to end of previous line
+        term_cursor_y--;
+        term_cursor_x = term_width_chars - 1;
+        // Clear the character at the current position
+        int pixel_x = term_cursor_x * FONT_WIDTH;
+        int pixel_y = term_cursor_y * FONT_HEIGHT;
+        draw_ascii_char_with_bg(pixel_x, pixel_y, ' ', COLOR_WHITE, COLOR_BLACK);
+    }
+}
+
+// Helper function to handle tab
+static void handle_tab(void) {
+    // Move to next tab stop (every 4 characters)
+    int spaces = 4 - (term_cursor_x % 4);
+    for (int i = 0; i < spaces; i++) {
+        if (term_cursor_x < term_width_chars) {
+            int pixel_x = term_cursor_x * FONT_WIDTH;
+            int pixel_y = term_cursor_y * FONT_HEIGHT;
+            draw_ascii_char_with_bg(pixel_x, pixel_y, ' ', COLOR_WHITE, COLOR_BLACK);
+            advance_cursor();
+        }
+    }
+}
+
+// Helper function to draw a character to the screen
+static void draw_terminal_char(char c, uint32_t color) {
+    int pixel_x = term_cursor_x * FONT_WIDTH;
+    int pixel_y = term_cursor_y * FONT_HEIGHT;
+    draw_ascii_char_with_bg(pixel_x, pixel_y, c, color, COLOR_BLACK);
+    advance_cursor();
+}
+
 // Function to get character based on current keyboard state
 static char get_character(uint32_t key) {
     if (key >= 256) return 0; // Not a printable character
@@ -97,6 +190,12 @@ void init_keyboard() {
     ctrl_pressed = false;
     alt_pressed = false;
     
+    // Initialize terminal dimensions
+    term_width_chars = get_screen_width() / FONT_WIDTH;
+    term_height_chars = get_screen_height() / FONT_HEIGHT;
+    term_cursor_x = 0;
+    term_cursor_y = 0;
+    
     // Clear keyboard buffer
     while (inb(0x64) & 0x01) {
         inb(0x60);
@@ -111,7 +210,8 @@ void init_keyboard() {
     // Wait for command to be processed
     while (inb(0x64) & 0x02);
     
-    serial_printf("Keyboard initialized\r\n");
+    serial_printf("Keyboard initialized - Terminal size: %dx%d chars\r\n", 
+                  term_width_chars, term_height_chars);
     
     init_keyboard_irq();
 }
@@ -166,63 +266,94 @@ void keyboard_handler(struct interrupt_registers *regs) {
     // Handle special keys
     switch (key) {
         case ESC:
+            // Draw ESC indicator
+            draw_string(term_cursor_x * FONT_WIDTH, term_cursor_y * FONT_HEIGHT, "[ESC]", COLOR_YELLOW);
+            advance_cursor();
+            advance_cursor();
+            advance_cursor();
+            advance_cursor();
+            advance_cursor();
             serial_printf("[ESC]\r\n");
             break;
             
         case F1: case F2: case F3: case F4: case F5: case F6:
-        case F7: case F8: case F9: case F10: case F11: case F12:
-            serial_printf("[F%d]\r\n", (int)(F1 - key + 1));
+        case F7: case F8: case F9: case F10: case F11: case F12: {
+            int f_num = (int)(F1 - key + 1);
+            char f_str[10];
+            // Simple integer to string conversion
+            if (f_num < 10) {
+                f_str[0] = '[';
+                f_str[1] = 'F';
+                f_str[2] = '0' + f_num;
+                f_str[3] = ']';
+                f_str[4] = '\0';
+            } else {
+                f_str[0] = '[';
+                f_str[1] = 'F';
+                f_str[2] = '1';
+                f_str[3] = '0' + (f_num - 10);
+                f_str[4] = ']';
+                f_str[5] = '\0';
+            }
+            draw_string(term_cursor_x * FONT_WIDTH, term_cursor_y * FONT_HEIGHT, f_str, COLOR_YELLOW);
+            // Advance cursor for each character
+            for (int i = 0; f_str[i]; i++) advance_cursor();
+            serial_printf("[F%d]\r\n", f_num);
             break;
+        }
             
         case HOME:
+            term_cursor_x = 0;
             serial_printf("[HOME]\r\n");
             break;
             
         case END:
+            term_cursor_x = term_width_chars - 1;
             serial_printf("[END]\r\n");
             break;
             
-        case PGUP:
-            serial_printf("[PAGE UP]\r\n");
-            break;
-            
-        case PGDOWN:
-            serial_printf("[PAGE DOWN]\r\n");
-            break;
-            
         case UP:
+            if (term_cursor_y > 0) term_cursor_y--;
             serial_printf("[UP ARROW]\r\n");
             break;
             
         case DOWN:
+            if (term_cursor_y < term_height_chars - 1) term_cursor_y++;
             serial_printf("[DOWN ARROW]\r\n");
             break;
             
         case LEFT:
+            if (term_cursor_x > 0) {
+                term_cursor_x--;
+            } else if (term_cursor_y > 0) {
+                term_cursor_y--;
+                term_cursor_x = term_width_chars - 1;
+            }
             serial_printf("[LEFT ARROW]\r\n");
             break;
             
         case RIGHT:
+            if (term_cursor_x < term_width_chars - 1) {
+                term_cursor_x++;
+            } else if (term_cursor_y < term_height_chars - 1) {
+                term_cursor_y++;
+                term_cursor_x = 0;
+            }
             serial_printf("[RIGHT ARROW]\r\n");
             break;
             
-        case INSERT:
-            serial_printf("[INSERT]\r\n");
-            break;
-            
-        case DELETE:
-            serial_printf("[DELETE]\r\n");
-            break;
-            
         case '\b':
+            handle_backspace();
             serial_printf("[BACKSPACE]\r\n");
             break;
             
         case '\t':
+            handle_tab();
             serial_printf("[TAB]\r\n");
             break;
             
         case '\n':
+            handle_newline();
             serial_printf("\r\n");
             break;
             
@@ -237,10 +368,26 @@ void keyboard_handler(struct interrupt_registers *regs) {
                 if (c) {
                     // Handle control key combinations
                     if (ctrl_pressed) {
+                        // Draw control combination indicator
+                        char ctrl_str[10] = "[CTRL+";
+                        ctrl_str[6] = c;
+                        ctrl_str[7] = ']';
+                        ctrl_str[8] = '\0';
+                        draw_string(term_cursor_x * FONT_WIDTH, term_cursor_y * FONT_HEIGHT, ctrl_str, COLOR_RED);
+                        for (int i = 0; ctrl_str[i]; i++) advance_cursor();
                         serial_printf("[CTRL+%c]\r\n", c);
                     } else if (alt_pressed) {
+                        // Draw alt combination indicator
+                        char alt_str[10] = "[ALT+";
+                        alt_str[5] = c;
+                        alt_str[6] = ']';
+                        alt_str[7] = '\0';
+                        draw_string(term_cursor_x * FONT_WIDTH, term_cursor_y * FONT_HEIGHT, alt_str, COLOR_BLUE);
+                        for (int i = 0; alt_str[i]; i++) advance_cursor();
                         serial_printf("[ALT+%c]\r\n", c);
                     } else {
+                        // Draw normal character
+                        draw_terminal_char(c, COLOR_WHITE);
                         serial_printf("%c", c);
                     }
                 }
@@ -264,4 +411,23 @@ bool is_alt_pressed(void) {
 
 bool is_caps_lock_on(void) {
     return caps_lock_on;
+}
+
+// Additional utility functions for terminal
+void get_terminal_cursor_position(uint16_t *x, uint16_t *y) {
+    *x = term_cursor_x;
+    *y = term_cursor_y;
+}
+
+void set_terminal_cursor_position(uint16_t x, uint16_t y) {
+    if (x < term_width_chars && y < term_height_chars) {
+        term_cursor_x = x;
+        term_cursor_y = y;
+    }
+}
+
+void clear_terminal(void) {
+    clear_screen(COLOR_BLACK);
+    term_cursor_x = 0;
+    term_cursor_y = 0;
 }

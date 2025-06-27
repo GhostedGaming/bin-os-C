@@ -16,27 +16,11 @@
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
 
-__attribute__((used, section(".limine_requests")))
-static volatile struct limine_memmap_request memmap_request = {
-    .id = LIMINE_MEMMAP_REQUEST,
-    .revision = 0
-};
-
 __attribute__((used, section(".limine_requests_start")))
 static volatile LIMINE_REQUESTS_START_MARKER;
 
 __attribute__((used, section(".limine_requests_end")))
 static volatile LIMINE_REQUESTS_END_MARKER;
-
-void* allocate_memory(size_t size) {
-    for (uint64_t i = 0; i < memmap_request.response->entry_count; i++) {
-        struct limine_memmap_entry *entry = memmap_request.response->entries[i];
-        if (entry->type == LIMINE_MEMMAP_USABLE && entry->length >= size) {
-            return (void*)entry->base;
-        }
-    }
-    return NULL;
-}
 
 void hcf(void) {
     for (;;) {
@@ -48,6 +32,9 @@ void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
     uint32_t text_background = rgb_to_color(5,5,5);
     uint32_t text_color = rgb_to_color(255, 255, 255);
+    uint64_t total_memory = detect_total_memory();
+    bool cpuid = has_cpuid();
+    char *vendor_string = get_vendor_string();
     
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
@@ -55,10 +42,8 @@ void kmain(void) {
     
     init_serial();
     
-    // Initialize framebuffer first
     init_framebuffer();
     
-    // Fill background using the global framebuffer variables
     for (int y = 0; y < fb_height; y++) {
         for (int x = 0; x < fb_width; x++) {
             fb_ptr[y * fb_pitch + x] = background_color;
@@ -85,6 +70,10 @@ void kmain(void) {
     init_timing();
 
     init_keyboard();
+
+    if (cpuid == true || 1) {
+        serial_printf("CPUID = true, vendor: %s\r", vendor_string);
+    }
 
     draw_string_center_screen_with_bg("New binbows", text_color, text_background);
     

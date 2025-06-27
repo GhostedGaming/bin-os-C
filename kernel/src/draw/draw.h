@@ -22,6 +22,8 @@ extern int fb_pitch;
 // Utility functions
 void hcf(void);
 void init_framebuffer(void);
+int get_screen_width(void);
+int get_screen_height(void);
 
 // Drawing functions - now use global framebuffer automatically
 void draw_char(int x, int y, const uint8_t *char_bitmap, uint32_t color);
@@ -34,6 +36,7 @@ void draw_string_centered(int y, const char *str, uint32_t color);
 void draw_string_centered_with_bg(int y, const char *str, uint32_t fg_color, uint32_t bg_color);
 void draw_string_center_screen(const char *str, uint32_t color);
 void draw_string_center_screen_with_bg(const char *str, uint32_t fg_color, uint32_t bg_color);
+void clear_screen(uint32_t color);
 
 uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b);
 

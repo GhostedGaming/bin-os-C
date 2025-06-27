@@ -13,10 +13,10 @@ static inline uint64_t read_tsc(void) {
 }
 
 void init_timing(void) {
-    uint32_t cpu_freq_mhz = get_cpu_frequency_mhz();
+    // uint32_t cpu_freq_mhz = get_cpu_frequency_mhz();
     
-    if (cpu_freq_mhz > 0) {
-        cpu_cycles_per_ms = (uint64_t)cpu_freq_mhz * 1000;
+    if (200000 > 0) {
+        cpu_cycles_per_ms = (uint64_t)200000 * 1000;
         start_tsc = read_tsc();
         write_serial("Timing: Using CPU frequency");
     } else {
