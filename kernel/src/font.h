@@ -6,11 +6,8 @@
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 
-// --- 8x16 BIOS font for ASCII 32-126 (printable) ---
-// Each character is FONT_HEIGHT bytes, each byte is a row (8 pixels wide).
-static const uint8_t font8x16[95][16];
+extern const uint8_t font8x16[95][16];
 
-// --- Function declarations ---
 void draw_char(int x, int y, const uint8_t *char_bitmap, uint32_t color);
 void draw_ascii_char(int x, int y, char c, uint32_t color);
 void draw_string(int x, int y, const char *str, uint32_t color);

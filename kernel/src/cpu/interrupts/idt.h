@@ -22,13 +22,10 @@ typedef struct {
 
 // Function declarations
 void idt_init(void);
-void idt_set_gate(uint8_t vector, uint64_t isr, uint16_t selector, uint8_t flags);
 void idt_load(void);
-
-// Interrupt handlers (called from C)
-void isr_handler(uint64_t interrupt_number);
-void irq_handler(uint64_t irq_number);
-void init_keyboard_irq(void);
+void install_exceptions(void);     // Add this line
 void init_timer_irq(void);
+void init_keyboard_irq(void);
+void idt_set_gate(uint8_t vector, uint64_t isr, uint16_t selector, uint8_t flags);
 
-#endif
+#endif // IDT_H

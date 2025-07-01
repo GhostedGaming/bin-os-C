@@ -1,6 +1,7 @@
 #include "../../serial/serial.h"
 #include "../../io.h"
 #include "../../draw/draw.h"
+#include "../../font.h"
 #include "../keyboard/keyboard.h"
 #include "../interrupts/idt.h"
 #include "stdbool.h"
@@ -17,14 +18,14 @@ static uint16_t term_cursor_x = 0;
 static uint16_t term_cursor_y = 0;
 
 // Define colors
-#define COLOR_WHITE     0xFFFFFFFF
-#define COLOR_BLACK     0xFF000000
-#define COLOR_GREEN     0xFF00FF00
-#define COLOR_RED       0xFFFF0000
-#define COLOR_BLUE      0xFF0000FF
-#define COLOR_YELLOW    0xFFFFFF00
+#define COLOR_WHITE     rgb_to_color(255, 255, 255)
+#define COLOR_BLACK     rgb_to_color(0, 0, 0)
+#define COLOR_GREEN     rgb_to_color(0, 255, 0)
+#define COLOR_RED       rgb_to_color(255, 0, 0)
+#define COLOR_BLUE      rgb_to_color(0, 0, 255)
+#define COLOR_YELLOW    rgb_to_color(0, 255, 255)
 
-// Terminal dimensions (in characters)
+// Terminal dimensions
 static int term_width_chars = 0;
 static int term_height_chars = 0;
 
@@ -59,7 +60,6 @@ static int term_height_chars = 0;
 #define INSERT  0xFFFFFFFF - 27
 #define DELETE  0xFFFFFFFF - 28
 
-// Scancode to character mapping (US QWERTY layout)
 static const uint32_t scancode_map[128] = {
     // 0x00-0x0F
     UNKNOWN, ESC, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b', '\t',
@@ -73,11 +73,9 @@ static const uint32_t scancode_map[128] = {
     F6, F7, F8, F9, F10, UNKNOWN, UNKNOWN, HOME, UP, PGUP, '-', LEFT, UNKNOWN, RIGHT, '+', END,
     // 0x50-0x5F
     DOWN, PGDOWN, INSERT, DELETE, UNKNOWN, UNKNOWN, UNKNOWN, F11, F12, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN,
-    // 0x60-0x7F (fill rest with UNKNOWN)
     [0x60 ... 0x7F] = UNKNOWN
 };
 
-// Shifted character mappings
 static const char shift_map[128] = {
     ['1'] = '!', ['2'] = '@', ['3'] = '#', ['4'] = '$', ['5'] = '%',
     ['6'] = '^', ['7'] = '&', ['8'] = '*', ['9'] = '(', ['0'] = ')',
@@ -86,22 +84,14 @@ static const char shift_map[128] = {
     ['/'] = '?'
 };
 
-// Helper function to scroll the screen up by one line
 static void scroll_screen_up(void) {
-    // This is a simple implementation - you might want to optimize this
-    // For now, we'll just clear the screen and reset cursor to top
-    // In a real implementation, you'd copy pixel data up
-    
-    // Move cursor to top-left for now (simple approach)
     if (term_cursor_y >= term_height_chars - 1) {
-        // Clear screen and reset cursor
         clear_screen(COLOR_BLACK);
         term_cursor_x = 0;
         term_cursor_y = 0;
     }
 }
 
-// Helper function to advance cursor position
 static void advance_cursor(void) {
     term_cursor_x++;
     if (term_cursor_x >= term_width_chars) {
@@ -113,7 +103,6 @@ static void advance_cursor(void) {
     }
 }
 
-// Helper function to handle newline
 static void handle_newline(void) {
     term_cursor_x = 0;
     term_cursor_y++;
@@ -122,7 +111,6 @@ static void handle_newline(void) {
     }
 }
 
-// Helper function to handle backspace
 static void handle_backspace(void) {
     if (term_cursor_x > 0) {
         term_cursor_x--;
@@ -141,25 +129,22 @@ static void handle_backspace(void) {
     }
 }
 
-// Helper function to handle tab
 static void handle_tab(void) {
-    // Move to next tab stop (every 4 characters)
     int spaces = 4 - (term_cursor_x % 4);
     for (int i = 0; i < spaces; i++) {
         if (term_cursor_x < term_width_chars) {
             int pixel_x = term_cursor_x * FONT_WIDTH;
             int pixel_y = term_cursor_y * FONT_HEIGHT;
-            draw_ascii_char_with_bg(pixel_x, pixel_y, ' ', COLOR_WHITE, COLOR_BLACK);
+            draw_ascii_char(pixel_x, pixel_y, ' ', COLOR_WHITE);
             advance_cursor();
         }
     }
 }
 
-// Helper function to draw a character to the screen
 static void draw_terminal_char(char c, uint32_t color) {
     int pixel_x = term_cursor_x * FONT_WIDTH;
     int pixel_y = term_cursor_y * FONT_HEIGHT;
-    draw_ascii_char_with_bg(pixel_x, pixel_y, c, color, COLOR_BLACK);
+    draw_ascii_char(pixel_x, pixel_y, c, color);
     advance_cursor();
 }
 
@@ -213,7 +198,7 @@ void init_keyboard() {
     serial_printf("Keyboard initialized - Terminal size: %dx%d chars\r\n", 
                   term_width_chars, term_height_chars);
     
-    init_keyboard_irq();
+    enable_keyboard_irq();
 }
 
 void keyboard_handler(struct interrupt_registers *regs) {
@@ -430,4 +415,13 @@ void clear_terminal(void) {
     clear_screen(COLOR_BLACK);
     term_cursor_x = 0;
     term_cursor_y = 0;
+}
+
+void enable_keyboard_irq(void) {
+    // Enable IRQ1 (keyboard) in PIC
+    uint8_t mask = inb(0x21);
+    mask &= ~(1 << 1); // Clear bit 1 to enable IRQ1
+    outb(0x21, mask);
+    
+    serial_printf("Keyboard: IRQ1 enabled in PIC\r\n");
 }

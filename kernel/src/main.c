@@ -5,13 +5,13 @@
 #include "font.h"
 #include "draw/draw.h"
 #include "cpu/interrupts/idt.h"
-#include "cpu/cpuid/cpuid.h"
 #include "cpu/gdt/gdt.h"
 #include "cpu/pic/pic.h"
 #include "cpu/keyboard/keyboard.h"
 #include "serial/serial.h"
-#include "timing/timing.h"
+#include "timing/timer.h"
 #include "memory.h"
+#include "pc_speaker/speaker.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -30,11 +30,8 @@ void hcf(void) {
 
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
-    uint32_t text_background = rgb_to_color(5,5,5);
     uint32_t text_color = rgb_to_color(255, 255, 255);
     uint64_t total_memory = detect_total_memory();
-    bool cpuid = has_cpuid();
-    char *vendor_string = get_vendor_string();
     
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
@@ -55,28 +52,22 @@ void kmain(void) {
     serial_printf("GDT loaded\r\n");
 
     idt_init();
-    idt_load();
-    write_serial("IDT loaded");
-
-    PIC_remap(0x20, 0x28);
-
-    outb(0x21, inb(0x21) & ~0x02);  // Clear bit 1 for IRQ1 on master PIC
+    install_exceptions(); // Install CPU exceptions
+    init_timer_irq();     // Install timer IRQ handler
+    init_keyboard_irq();  // Install keyboard IRQ handler
+    idt_load();           // Load IDT into CPU
     
-    __asm__ volatile ("sti");  // Enable interrupts
+    init_pic();           // Initialize PIC
+    init_timer();         // Initialize PIT
+    init_keyboard();      // Initialize keyboard
+    init_timer_interrupts(); // Enable timer IRQ
+
+    __asm__ volatile ("sti"); // Enable interrupts
     write_serial("Interrupts enabled");
 
-    init_timer_irq();
+    draw_string_center_screen("Hello world!", text_color);
 
-    init_timing();
-
-    init_keyboard();
-
-    if (cpuid == true || 1) {
-        serial_printf("CPUID = true, vendor: %s\r", vendor_string);
-    }
-
-    draw_string_center_screen_with_bg("New binbows", text_color, text_background);
-    
+    beep();
     while (1) {
         __asm__ volatile ("hlt");  // Halt until interrupt
     }

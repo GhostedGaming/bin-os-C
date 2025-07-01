@@ -26,7 +26,8 @@
 #define PIC_READ_IRR    0x0a		/* OCW3 irq ready next CMD read */
 #define PIC_READ_ISR    0x0b		/* OCW3 irq service next CMD read */
 
-/* Function declarations */
+void init_pic(void); 
+void pic_enable_timer_irq(void);  
 void PIC_sendEOI(uint8_t irq);
 void PIC_remap(int offset1, int offset2);
 void pic_disable(void);

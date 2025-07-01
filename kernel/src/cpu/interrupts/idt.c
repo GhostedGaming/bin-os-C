@@ -4,6 +4,7 @@
 #include "../pic/pic.h"
 #include "../../serial/serial.h"
 #include "../keyboard/keyboard.h"
+#include "../../timing/timer.h"
 
 // IDT definition
 __attribute__((aligned(0x10))) static idt_entry_t idt[256];
@@ -97,9 +98,24 @@ void isr_handler(uint64_t interrupt_number) {
 
 // === IRQ Handler (called from irq.asm) ===
 void irq_handler(uint64_t irq_number) {
-    if (irq_number == 33) {
-        keyboard_handler(NULL);
+    switch(irq_number) {
+        case 32: // IRQ0 - Timer
+            on_irq0();
+            // Remove debug output once working
+            // write_serial("Timer tick\n");
+            break;
+        case 33: // IRQ1 - Keyboard  
+            write_serial("Keyboard IRQ received\n"); // Add this debug line
+            keyboard_handler(NULL);
+            break;
+        default:
+            write_serial("Unhandled IRQ\n");
+            break;
     }
 
-    outb(0x20, 0x20);
+    // Send EOI to PIC
+    if (irq_number >= 40) {
+        outb(0xA0, 0x20); // Send EOI to slave PIC
+    }
+    outb(0x20, 0x20); // Send EOI to master PIC
 }
