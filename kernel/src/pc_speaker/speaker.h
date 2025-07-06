@@ -5,6 +5,6 @@ void play_sound(uint32_t Freq);
 
 void nosound();
 
-void beep();
+void beep(uint32_t Freq, uint32_t duration);
 
 #endif

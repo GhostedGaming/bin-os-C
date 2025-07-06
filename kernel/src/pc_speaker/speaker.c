@@ -26,10 +26,10 @@ void nosound() {
     outb(0x61, tmp);
 }
 
-void beep() {
-    play_sound(1000);
+void beep(uint32_t Freq, uint32_t duration) {
+    play_sound(Freq);
 
-    timer_wait(10);
+    timer_wait(duration);
 
     nosound();
 }

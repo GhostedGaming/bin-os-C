@@ -12,6 +12,7 @@
 #include "timing/timer.h"
 #include "memory.h"
 #include "pc_speaker/speaker.h"
+#include "cpu/cpuid/cpuid.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -61,13 +62,17 @@ void kmain(void) {
     init_timer();         // Initialize PIT
     init_keyboard();      // Initialize keyboard
     init_timer_interrupts(); // Enable timer IRQ
+    print_vendor();
 
     __asm__ volatile ("sti"); // Enable interrupts
     write_serial("Interrupts enabled");
 
     draw_string_center_screen("Hello world!", text_color);
 
-    beep();
+    beep(750,  8);
+    beep(850,  10);
+    beep(1050, 12);
+
     while (1) {
         __asm__ volatile ("hlt");  // Halt until interrupt
     }

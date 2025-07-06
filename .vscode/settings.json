@@ -8,6 +8,7 @@
         "format": "c",
         "serial.h": "c",
         "keyboard.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "cpuid.h": "c"
     }
 }

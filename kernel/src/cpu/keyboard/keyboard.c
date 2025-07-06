@@ -6,6 +6,7 @@
 #include "../interrupts/idt.h"
 #include "stdbool.h"
 #include "keyboard.h"
+#include "../../pc_speaker/speaker.h"
 
 // Keyboard state variables
 static bool caps_lock_on = false;
@@ -196,7 +197,7 @@ void init_keyboard() {
     while (inb(0x64) & 0x02);
     
     serial_printf("Keyboard initialized - Terminal size: %dx%d chars\r\n", 
-                  term_width_chars, term_height_chars);
+                    term_width_chars, term_height_chars);
     
     enable_keyboard_irq();
 }
