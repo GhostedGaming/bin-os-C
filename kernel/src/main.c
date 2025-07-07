@@ -29,17 +29,73 @@ void hcf(void) {
     }
 }
 
+void test_memory_allocator(void) {
+    serial_printf("Testing memory allocator...\r\n");
+    
+    void* ptr1 = malloc(100);
+    if (ptr1) {
+        serial_printf("Allocated 100 bytes at %p\r\n", ptr1);
+    } else {
+        serial_printf("Failed to allocate 100 bytes\r\n");
+    }
+    
+    void* ptr2 = malloc(200);
+    if (ptr2) {
+        serial_printf("Allocated 200 bytes at %p\r\n", ptr2);
+    } else {
+        serial_printf("Failed to allocate 200 bytes\r\n");
+    }
+    
+    void* ptr3 = calloc(10, sizeof(int));
+    if (ptr3) {
+        serial_printf("Allocated 40 bytes (calloc) at %p\r\n", ptr3);
+    } else {
+        serial_printf("Failed to allocate 40 bytes with calloc\r\n");
+    }
+    
+    size_t total, used, free_size;
+    get_heap_stats(&total, &used, &free_size);
+    serial_printf("Heap stats: Total=%zu, Used=%zu, Free=%zu\r\n", total, used, free_size);
+    
+    free(ptr1);
+    serial_printf("Freed ptr1\r\n");
+    
+    get_heap_stats(&total, &used, &free_size);
+    serial_printf("After free: Total=%zu, Used=%zu, Free=%zu\r\n", total, used, free_size);
+    
+    void* ptr4 = malloc(150);
+    if (ptr4) {
+        serial_printf("Allocated 150 bytes at %p (should reuse freed space)\r\n", ptr4);
+    } else {
+        serial_printf("Failed to allocate 150 bytes\r\n");
+    }
+    
+    void* ptr5 = realloc(ptr2, 400);
+    if (ptr5) {
+        serial_printf("Reallocated ptr2 to 400 bytes at %p\r\n", ptr5);
+    } else {
+        serial_printf("Failed to reallocate ptr2\r\n");
+    }
+    
+    free(ptr3);
+    free(ptr4);
+    free(ptr5);
+    
+    get_heap_stats(&total, &used, &free_size);
+    serial_printf("Final heap stats: Total=%zu, Used=%zu, Free=%zu\r\n", total, used, free_size);
+    
+    serial_printf("Memory allocator test completed\r\n");
+}
+
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
     uint32_t text_color = rgb_to_color(255, 255, 255);
-    uint64_t total_memory = detect_total_memory();
     
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
     }
     
     init_serial();
-    
     init_framebuffer();
     
     for (int y = 0; y < fb_height; y++) {
@@ -47,33 +103,39 @@ void kmain(void) {
             fb_ptr[y * fb_pitch + x] = background_color;
         }
     }
-
+    
+    serial_printf("Initializing memory allocator...\r\n");
+    init_heap();
+    serial_printf("Memory allocator initialized\r\n");
+    
     gdt_init();
     gdt_load();
     serial_printf("GDT loaded\r\n");
-
-    idt_init();
-    install_exceptions(); // Install CPU exceptions
-    init_timer_irq();     // Install timer IRQ handler
-    init_keyboard_irq();  // Install keyboard IRQ handler
-    idt_load();           // Load IDT into CPU
     
-    init_pic();           // Initialize PIC
-    init_timer();         // Initialize PIT
-    init_keyboard();      // Initialize keyboard
-    init_timer_interrupts(); // Enable timer IRQ
+    idt_init();
+    install_exceptions();
+    init_timer_irq();
+    init_keyboard_irq();
+    idt_load();
+    init_pic();
+    init_timer();
+    init_keyboard();
+    init_timer_interrupts();
+    
     print_vendor();
-
-    __asm__ volatile ("sti"); // Enable interrupts
+    
+    __asm__ volatile ("sti");
     write_serial("Interrupts enabled");
-
+    
+    test_memory_allocator();
+    
     draw_string_center_screen("Hello world!", text_color);
-
-    beep(750,  8);
-    beep(850,  10);
+    
+    beep(750, 8);
+    beep(850, 10);
     beep(1050, 12);
-
+    
     while (1) {
-        __asm__ volatile ("hlt");  // Halt until interrupt
+        __asm__ volatile ("hlt");
     }
 }

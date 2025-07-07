@@ -1,16 +1,21 @@
 #ifndef MEMORY_H
 #define MEMORY_H
-#include <stddef.h>
+
 #include <stdint.h>
+#include <stddef.h>
 
-void *memcpy(void *restrict dest, const void *restrict src, size_t n);
-void *memset(void *s, int c, size_t n);
-void *memmove(void *dest, const void *src, size_t n);
-void *allocate_memory(size_t size);
-int memcmp(const void *s1, const void *s2, size_t n);
-uint64_t detect_total_memory(void);
+void init_heap(void);
+void* malloc(size_t size);
+void free(void* ptr);
+void* calloc(size_t num, size_t size);
+void* realloc(void* ptr, size_t size);
 
-void init_memory_allocator(void);
-void free_memory(void *ptr);
+void* memcpy(void* restrict dest, const void* restrict src, size_t n);
+void* memset(void* s, int c, size_t n);
+void* memmove(void* dest, const void* src, size_t n);
+int memcmp(const void* s1, const void* s2, size_t n);
+
+void print_heap_status(void);
+void get_heap_stats(size_t* total_size, size_t* used_size, size_t* free_size);
 
 #endif // MEMORY_H

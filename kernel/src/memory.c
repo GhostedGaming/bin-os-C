@@ -3,118 +3,190 @@
 #include <limine.h>
 #include "memory.h"
 
-// Fixed: proper __attribute__ syntax
+#define HEAP_SIZE 4096 * 1024
+
+typedef struct block {
+    size_t size;
+    int is_free;
+    struct block* next;
+} block_t;
+
+static block_t* heap_start = NULL;
+static char heap_memory[HEAP_SIZE];
+
 __attribute__((used, section(".limine_requests")))
 static volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
 };
 
-// Simple allocator state
-static uint8_t *heap_start = NULL;
-static uint8_t *heap_current = NULL;
-static size_t heap_size = 0;
-static int allocator_initialized = 0;
-
-uint64_t detect_total_memory(void) {
-    if (memmap_request.response == NULL) {
-        return 0; // Failed
-    }
-    
-    struct limine_memmap_response *memmap = memmap_request.response;
-    uint64_t total_usable = 0;
-    uint64_t total_physical = 0;
-    
-    for (uint64_t i = 0; i < memmap->entry_count; i++) {
-        struct limine_memmap_entry *entry = memmap->entries[i];
-        total_physical += entry->length;
-        
-        if (entry->type == LIMINE_MEMMAP_USABLE) {
-            total_usable += entry->length;
-        }
-    }
-    
-    return total_usable;
+void init_heap() {
+    heap_start = (block_t*)heap_memory;
+    heap_start->size = HEAP_SIZE - sizeof(block_t);
+    heap_start->is_free = 1;
+    heap_start->next = NULL;
 }
 
-void init_memory_allocator(void) {
-    if (memmap_request.response == NULL) {
+static block_t* find_free_block(size_t size) {
+    block_t* current = heap_start;
+    
+    while (current) {
+        if (current->is_free && current->size >= size) {
+            return current;
+        }
+        current = current->next;
+    }
+    
+    return NULL;
+}
+
+static void split_block(block_t* block, size_t size) {
+    if (block->size > size + sizeof(block_t)) {
+        block_t* new_block = (block_t*)((char*)block + sizeof(block_t) + size);
+        new_block->size = block->size - size - sizeof(block_t);
+        new_block->is_free = 1;
+        new_block->next = block->next;
+        
+        block->size = size;
+        block->next = new_block;
+    }
+}
+
+static void coalesce() {
+    block_t* current = heap_start;
+    
+    while (current && current->next) {
+        if (current->is_free && current->next->is_free) {
+            current->size += current->next->size + sizeof(block_t);
+            current->next = current->next->next;
+        } else {
+            current = current->next;
+        }
+    }
+}
+
+void* malloc(size_t size) {
+    if (size == 0) return NULL;
+    
+    if (!heap_start) {
+        init_heap();
+    }
+    
+    block_t* block = find_free_block(size);
+    if (!block) {
+        return NULL;
+    }
+    
+    split_block(block, size);
+    
+    block->is_free = 0;
+    
+    return (char*)block + sizeof(block_t);
+}
+
+void free(void* ptr) {
+    if (!ptr) return;
+    
+    block_t* block = (block_t*)((char*)ptr - sizeof(block_t));
+    
+    block->is_free = 1;
+    
+    coalesce();
+}
+
+void* calloc(size_t num, size_t size) {
+    size_t total_size = num * size;
+    void* ptr = malloc(total_size);
+    
+    if (ptr) {
+        memset(ptr, 0, total_size);
+    }
+    
+    return ptr;
+}
+
+void* realloc(void* ptr, size_t size) {
+    if (!ptr) return malloc(size);
+    if (size == 0) {
+        free(ptr);
+        return NULL;
+    }
+    
+    block_t* block = (block_t*)((char*)ptr - sizeof(block_t));
+    
+    if (block->size >= size) {
+        return ptr;
+    }
+    
+    void* new_ptr = malloc(size);
+    if (new_ptr) {
+        size_t copy_size = (block->size < size) ? block->size : size;
+        memcpy(new_ptr, ptr, copy_size);
+        free(ptr);
+    }
+    
+    return new_ptr;
+}
+
+void print_heap_status() {
+    block_t* current = heap_start;
+    int block_count = 0;
+    size_t total_free = 0;
+    size_t total_allocated = 0;
+    
+    while (current) {
+        block_count++;
+        if (current->is_free) {
+            total_free += current->size;
+        } else {
+            total_allocated += current->size;
+        }
+        current = current->next;
+    }
+}
+
+void get_heap_stats(size_t* total_size, size_t* used_size, size_t* free_size) {
+    if (!heap_start) {
+        *total_size = *used_size = *free_size = 0;
         return;
     }
     
-    // Find largest usable memory region for heap
-    struct limine_memmap_response *memmap = memmap_request.response;
-    size_t largest_size = 0;
-    uint64_t best_base = 0;
+    *total_size = HEAP_SIZE;
+    *used_size = 0;
+    *free_size = 0;
     
-    for (uint64_t i = 0; i < memmap->entry_count; i++) {
-        struct limine_memmap_entry *entry = memmap->entries[i];
-        
-        if (entry->type == LIMINE_MEMMAP_USABLE && entry->length > largest_size) {
-            largest_size = entry->length;
-            best_base = entry->base;
+    block_t* current = heap_start;
+    while (current) {
+        if (current->is_free) {
+            *free_size += current->size;
+        } else {
+            *used_size += current->size;
         }
-    }
-    
-    if (largest_size > 0) {
-        heap_start = (uint8_t*)best_base;
-        heap_current = heap_start;
-        heap_size = largest_size;
-        allocator_initialized = 1;
+        current = current->next;
     }
 }
 
-// Simple bump allocator (better than your original)
-void *allocate_memory(size_t size) {
-    if (!allocator_initialized) {
-        init_memory_allocator();
-    }
-    
-    if (!allocator_initialized || heap_current == NULL) {
-        return NULL;
-    }
-
-    size_t aligned_size = (size + 7) & ~7;
-    
-    if ((heap_current + aligned_size) > (heap_start + heap_size)) {
-        return NULL;
-    }
-    
-    void *result = heap_current;
-    heap_current += aligned_size;
-    
-    return result;
-}
-
-void free_memory(void *ptr) {
-    (void)ptr;
-}
-
+// Memory utility functions (your existing ones are good)
 void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
     uint8_t *restrict pdest = (uint8_t *restrict)dest;
     const uint8_t *restrict psrc = (const uint8_t *restrict)src;
-    
     for (size_t i = 0; i < n; i++) {
         pdest[i] = psrc[i];
     }
-    
     return dest;
 }
 
 void *memset(void *s, int c, size_t n) {
     uint8_t *p = (uint8_t *)s;
-    
     for (size_t i = 0; i < n; i++) {
         p[i] = (uint8_t)c;
     }
-    
     return s;
 }
 
 void *memmove(void *dest, const void *src, size_t n) {
     uint8_t *pdest = (uint8_t *)dest;
     const uint8_t *psrc = (const uint8_t *)src;
-    
     if (src > dest) {
         for (size_t i = 0; i < n; i++) {
             pdest[i] = psrc[i];
@@ -124,19 +196,16 @@ void *memmove(void *dest, const void *src, size_t n) {
             pdest[i-1] = psrc[i-1];
         }
     }
-    
     return dest;
 }
 
 int memcmp(const void *s1, const void *s2, size_t n) {
     const uint8_t *p1 = (const uint8_t *)s1;
     const uint8_t *p2 = (const uint8_t *)s2;
-    
     for (size_t i = 0; i < n; i++) {
         if (p1[i] != p2[i]) {
             return p1[i] < p2[i] ? -1 : 1;
         }
     }
-    
     return 0;
 }
