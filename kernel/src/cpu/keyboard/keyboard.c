@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "../../serial/serial.h"
 #include "../../io.h"
 #include "../../draw/draw.h"
@@ -7,6 +8,7 @@
 #include "stdbool.h"
 #include "keyboard.h"
 #include "../../pc_speaker/speaker.h"
+#include "../../shell/shell.h"
 
 // Keyboard state variables
 static bool caps_lock_on = false;
@@ -105,6 +107,11 @@ static void advance_cursor(void) {
 }
 
 static void handle_newline(void) {
+    char *command = input('\n');
+    if (command != NULL) {
+        parse_command();
+    }
+    
     term_cursor_x = 0;
     term_cursor_y++;
     if (term_cursor_y >= term_height_chars) {
@@ -119,6 +126,7 @@ static void handle_backspace(void) {
         int pixel_x = term_cursor_x * FONT_WIDTH;
         int pixel_y = term_cursor_y * FONT_HEIGHT;
         draw_ascii_char_with_bg(pixel_x, pixel_y, ' ', COLOR_WHITE, COLOR_BLACK);
+        shell_backspace();
     } else if (term_cursor_y > 0) {
         // Move to end of previous line
         term_cursor_y--;
@@ -374,6 +382,7 @@ void keyboard_handler(struct interrupt_registers *regs) {
                     } else {
                         // Draw normal character
                         draw_terminal_char(c, COLOR_WHITE);
+                        input(c);
                         serial_printf("%c", c);
                     }
                 }

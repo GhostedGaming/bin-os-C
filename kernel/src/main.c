@@ -131,10 +131,6 @@ void kmain(void) {
     
     draw_string_center_screen("Hello world!", text_color);
     
-    beep(750, 8);
-    beep(850, 10);
-    beep(1050, 12);
-    
     while (1) {
         __asm__ volatile ("hlt");
     }
