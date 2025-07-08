@@ -32,7 +32,6 @@ uint16_t move_cursor_right(uint16_t amount) {
 }
 
 uint16_t move_cursor_up(uint16_t amount) {
-    // Fixed: should check against fb_height, not fb_width
     if (cursor_position_y >= amount) {
         cursor_position_y -= amount;  // Move up means subtract from y
     } else {
@@ -207,6 +206,16 @@ void draw_rect(int x, int y, int width, int height, uint32_t color) {
         for (int px = x; px < x + width && px < fb_width; px++) {
             if (px >= 0 && py >= 0) {
                 fb_ptr[py * fb_pitch + px] = color;
+            }
+        }
+    }
+}
+
+void remove_rect(int x, int y, int width, int height, uint32_t bg_color) {
+    for (int py = y; py < y + height && py < fb_height; py++) {
+        for (int px = x; px < x + width && px < fb_width; px++) {
+            if (px >= 0 && py >= 0) {
+                fb_ptr[py * fb_pitch + px] = bg_color;
             }
         }
     }
