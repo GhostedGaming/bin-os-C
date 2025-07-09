@@ -12,10 +12,8 @@ void *memset(void *s, int c, size_t n);
 int strncmp(const char *s1, const char *s2, size_t n);
 void parse_args(const char *command, char args[][32], int *argc);
 
-// Add forward declaration for shell_print_welcome
 void shell_print_welcome(void);
 
-// Command function declarations
 void cmd_help(int argc, char args[][32]);
 void cmd_hello(int argc, char args[][32]);
 void cmd_clear(int argc, char args[][32]);
@@ -42,7 +40,7 @@ static const uint32_t cursor_color = 0xFF00FF00;
 static const uint32_t error_color = 0xFFFF0000;
 static const uint32_t success_color = 0xFF00FF00;
 static int cursor_blink_counter = 0;
-static int cursor_visible = 1;
+static int cursor_visible = 0;
 
 void shell_init(void) {
     shell_x = 0;

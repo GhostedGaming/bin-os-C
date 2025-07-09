@@ -33,7 +33,7 @@ typedef enum {
     KEY_RSHIFT = 4,
     KEY_ALT = 5,
     KEY_CAPS = 6,
-    KEY_F1 = 128,    // Start function keys at 128 to avoid conflicts with ASCII
+    KEY_F1 = 128,
     KEY_F2 = 129,
     KEY_F3 = 130,
     KEY_F4 = 131,
@@ -104,11 +104,6 @@ static void keyboard_wait_input(void) {
     while (inb(KB_STATUS_PORT) & KB_STATUS_INPUT_FULL);
 }
 
-// Remove unused function warning by commenting out or removing
-// static void keyboard_wait_output(void) {
-//     while (!(inb(KB_STATUS_PORT) & KB_STATUS_OUTPUT_FULL));
-// }
-
 static char get_character(uint8_t key) {
     if (key == 0 || key >= 128) return 0;
     
@@ -119,8 +114,8 @@ static char get_character(uint8_t key) {
         if (should_uppercase) {
             c = c - 'a' + 'A';
         }
-    } else if (shift_pressed && shift_map[(unsigned char)c]) {  // Cast to unsigned char to fix warning
-        c = shift_map[(unsigned char)c];                        // Cast to unsigned char to fix warning
+    } else if (shift_pressed && shift_map[(unsigned char)c]) {
+        c = shift_map[(unsigned char)c];                        
     }
     
     return c;
@@ -221,9 +216,18 @@ static void handle_printable_key(uint8_t key, bool pressed) {
     if (c == 0) return;
     
     if (ctrl_pressed) {
-        serial_printf("[CTRL+%c]\r\n", c);
-        if (c == 'c' || c == 'C') {
-            shell_cancel_input();
+        switch (c) {
+            case 'c':
+            case 'C':
+                shell_cancel_input();
+                break;
+            case 'l':
+            case 'L':
+                clear_screen(rgb_to_color(0, 0, 0));
+                shell_print_prompt();
+                break;
+            default:
+                break;
         }
     } else if (alt_pressed) {
         serial_printf("[ALT+%c]\r\n", c);
@@ -256,7 +260,7 @@ void init_keyboard(void) {
 }
 
 void keyboard_handler(struct interrupt_registers *regs) {
-    (void)regs;  // Suppress unused parameter warning
+    (void)regs;
     
     if (!(inb(KB_STATUS_PORT) & KB_STATUS_OUTPUT_FULL)) {
         return;
