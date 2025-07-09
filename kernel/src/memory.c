@@ -209,3 +209,59 @@ int memcmp(const void *s1, const void *s2, size_t n) {
     }
     return 0;
 }
+
+
+int strcmp(const char *str1, const char *str2) {
+    if (!str1 || !str2) return str1 ? 1 : (str2 ? -1 : 0);
+    
+    while (*str1 && *str2 && *str1 == *str2) {
+        str1++;
+        str2++;
+    }
+    return (unsigned char)*str1 - (unsigned char)*str2;
+}
+
+int strlen(const char *str) {
+    if (!str) return 0;
+    
+    int len = 0;
+    while (str[len]) len++;
+    return len;
+}
+
+char *strncpy(char *dest, const char *src, int n) {
+    if (!dest || !src) return dest;
+    
+    int i;
+    for (i = 0; i < n && src[i]; i++) {
+        dest[i] = src[i];
+    }
+    for (; i < n; i++) {
+        dest[i] = '\0';
+    }
+    return dest;
+}
+
+char *strcpy(char *dest, const char *src) {
+    if (!dest || !src) return dest;
+    
+    int i = 0;
+    while (src[i]) {
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
+    return dest;
+}
+
+int strncmp(const char *s1, const char *s2, size_t n) {
+    if (!s1 || !s2) return s1 ? 1 : (s2 ? -1 : 0);
+    
+    while (n && *s1 && *s2 && *s1 == *s2) {
+        s1++;
+        s2++;
+        n--;
+    }
+    if (n == 0) return 0;
+    return (unsigned char)*s1 - (unsigned char)*s2;
+}
