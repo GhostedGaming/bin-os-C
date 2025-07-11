@@ -4,34 +4,34 @@
 #include "../draw/draw.h"
 #include "../memory.h"
 
-int strcmp(const char *str1, const char *str2);
-int strlen(const char *str);
-char *strncpy(char *dest, const char *src, int n);
-char *strcpy(char *dest, const char *src);
-void *memset(void *s, int c, size_t n);
-int strncmp(const char *s1, const char *s2, size_t n);
-void parse_args(const char *command, char args[][32], int *argc);
+static void parse_args(const char *command, char args[][32], int *argc);
+static void shell_print_welcome(void);
+void shell_scroll_up(void);
+static void shell_add_to_history(const char *command);
 
-void shell_print_welcome(void);
-
-void cmd_help(int argc, char args[][32]);
+void cmd_help(void);
 void cmd_hello(int argc, char args[][32]);
-void cmd_clear(int argc, char args[][32]);
+void cmd_clear(void);
 void cmd_echo(int argc, char args[][32]);
-void cmd_history(int argc, char args[][32]);
-void cmd_uptime(int argc, char args[][32]);
-void cmd_exit(int argc, char args[][32]);
+void cmd_history(void);
+void cmd_uptime(void);
+void cmd_exit(void);
 
-static char command_buffer[256];
-static char input_buffer[256];
-static char history[10][256];
+#define MAX_INPUT_LENGTH 256
+#define MAX_HISTORY_ENTRIES 10
+#define MAX_ARGS 8
+#define MAX_ARG_LENGTH 32
+
+static char command_buffer[MAX_INPUT_LENGTH];
+static char input_buffer[MAX_INPUT_LENGTH];
+static char history[MAX_HISTORY_ENTRIES][MAX_INPUT_LENGTH];
 static int history_index = 0;
 static int history_current = 0;
 static int input_index = 0;
-static int cursor_pos = 0;
+static int cursor_pos = 0;  // Text cursor position within input buffer
+static int cursor_blink_counter = 0;
+static int cursor_visible = 0;
 
-static int shell_x = 0;
-static int shell_y = 0;
 static const int line_height = 16;
 static const int char_width = 8;
 static const uint32_t text_color = 0xFFFFFFFF;
@@ -39,57 +39,54 @@ static const uint32_t bg_color = 0xFF000000;
 static const uint32_t cursor_color = 0xFF00FF00;
 static const uint32_t error_color = 0xFFFF0000;
 static const uint32_t success_color = 0xFF00FF00;
-static int cursor_blink_counter = 0;
-static int cursor_visible = 0;
 
 void shell_init(void) {
-    shell_x = 0;
-    shell_y = 0;
-    input_index = 0;
-    cursor_pos = 0;
-    history_index = 0;
-    history_current = 0;
-    input_buffer[0] = '\0';
-    command_buffer[0] = '\0';
+    input_index = cursor_pos = 0;
+    history_index = history_current = cursor_blink_counter = 0;
+    input_buffer[0] = command_buffer[0] = '\0';
     memset(history, 0, sizeof(history));
     clear_screen(bg_color);
+    move_cursor_to(0, 0);
     shell_print_welcome();
     shell_print_prompt();
 }
 
-void shell_print_welcome(void) {
-    shell_print("SimpleOS Shell v1.0\n");
-    shell_print("Type 'help' for available commands.\n\n");
+static void shell_print_welcome(void) {
+    shell_print("Binbows Installer v1.1\nType 'help' for available commands.\n\n");
 }
 
 void shell_print_prompt(void) {
-    draw_string(shell_x, shell_y, "$ ", text_color);
-    shell_x += 2 * char_width;
+    draw_string(get_cursor_x(), get_cursor_y(), "$ ", text_color);
+    move_cursor_right(2 * char_width);
 }
 
 void shell_draw_input_line(void) {
-    int prompt_x = shell_x - (2 * char_width);
+    int prompt_x = get_cursor_x() - (2 * char_width);
+    int prompt_y = get_cursor_y();
     
-    draw_rect(prompt_x, shell_y, get_screen_width() - prompt_x, line_height, bg_color);
-    draw_string(prompt_x, shell_y, "$ ", text_color);
+    // Clear the line
+    draw_rect(prompt_x, prompt_y, get_screen_width() - prompt_x, line_height, bg_color);
     
+    // Draw prompt
+    draw_string(prompt_x, prompt_y, "$ ", text_color);
+    
+    // Draw input text
     int text_x = prompt_x + (2 * char_width);
-    draw_string(text_x, shell_y, input_buffer, text_color);
+    draw_string(text_x, prompt_y, input_buffer, text_color);
     
+    // Draw cursor
     if (cursor_visible) {
         int cursor_x = text_x + (cursor_pos * char_width);
-        draw_rect(cursor_x, shell_y, char_width, line_height, cursor_color);
-        
-        if (cursor_pos < input_index && input_buffer[cursor_pos] != '\0') {
+        draw_rect(cursor_x, prompt_y, char_width, line_height, cursor_color);
+        if (cursor_pos < input_index && input_buffer[cursor_pos]) {
             char cursor_char[2] = {input_buffer[cursor_pos], '\0'};
-            draw_string(cursor_x, shell_y, cursor_char, bg_color);
+            draw_string(cursor_x, prompt_y, cursor_char, bg_color);
         }
     }
 }
 
 void shell_update_cursor(void) {
-    cursor_blink_counter++;
-    if (cursor_blink_counter >= 30) {
+    if (++cursor_blink_counter >= 30) {
         cursor_visible = !cursor_visible;
         cursor_blink_counter = 0;
         shell_draw_input_line();
@@ -97,10 +94,8 @@ void shell_update_cursor(void) {
 }
 
 void shell_newline(void) {
-    shell_y += line_height;
-    shell_x = 0;
-
-    if (shell_y >= get_screen_height() - line_height) {
+    move_cursor_to(0, get_cursor_y() + line_height);
+    if (get_cursor_y() >= get_screen_height() - line_height) {
         shell_scroll_up();
     }
 }
@@ -123,7 +118,7 @@ void shell_scroll_up(void) {
         }
     }
     
-    shell_y -= line_height;
+    move_cursor_up(line_height);
 }
 
 void shell_print_color(const char *text, uint32_t color) {
@@ -133,23 +128,21 @@ void shell_print_color(const char *text, uint32_t color) {
         if (*text == '\n') {
             shell_newline();
         } else if (*text == '\r') {
-            shell_x = 0;
+            move_cursor_to(0, get_cursor_y());
         } else if (*text == '\t') {
-            int tab_size = 4;
-            int spaces_needed = tab_size - (shell_x / char_width) % tab_size;
-            for (int i = 0; i < spaces_needed; i++) {
-                draw_ascii_char(shell_x, shell_y, ' ', color);
-                shell_x += char_width;
-                if (shell_x >= get_screen_width() - char_width) {
+            int spaces = 4 - (get_cursor_x() / char_width) % 4;
+            for (int i = 0; i < spaces; i++) {
+                draw_ascii_char(get_cursor_x(), get_cursor_y(), ' ', color);
+                move_cursor_right(char_width);
+                if (get_cursor_x() >= get_screen_width() - char_width) {
                     shell_newline();
                     break;
                 }
             }
         } else {
-            draw_ascii_char(shell_x, shell_y, *text, color);
-            shell_x += char_width;
-            
-            if (shell_x >= get_screen_width() - char_width) {
+            draw_ascii_char(get_cursor_x(), get_cursor_y(), *text, color);
+            move_cursor_right(char_width);
+            if (get_cursor_x() >= get_screen_width() - char_width) {
                 shell_newline();
             }
         }
@@ -220,103 +213,46 @@ void shell_move_cursor_end(void) {
 }
 
 void shell_clear_input(void) {
-    input_index = 0;
-    cursor_pos = 0;
+    input_index = cursor_pos = 0;
     input_buffer[0] = '\0';
     shell_draw_input_line();
 }
 
-void shell_add_to_history(const char *command) {
-    if (strlen(command) == 0) return;
+static void shell_add_to_history(const char *command) {
+    if (!strlen(command)) return;
+    
+    int prev_index = (history_index - 1 + MAX_HISTORY_ENTRIES) % MAX_HISTORY_ENTRIES;
+    if (strlen(history[prev_index]) > 0 && strcmp(history[prev_index], command) == 0) {
+        history_current = history_index;
+        return;
+    }
     
     strcpy(history[history_index], command);
-    history_index = (history_index + 1) % 10;
+    history_index = (history_index + 1) % MAX_HISTORY_ENTRIES;
     history_current = history_index;
 }
 
 void shell_history_up(void) {
-    int prev = (history_current - 1 + 10) % 10;
+    int prev = (history_current - 1 + MAX_HISTORY_ENTRIES) % MAX_HISTORY_ENTRIES;
     if (strlen(history[prev]) > 0) {
         history_current = prev;
         strcpy(input_buffer, history[history_current]);
-        input_index = strlen(input_buffer);
-        cursor_pos = input_index;
+        input_index = cursor_pos = strlen(input_buffer);
         shell_draw_input_line();
     }
 }
 
 void shell_history_down(void) {
-    int next = (history_current + 1) % 10;
+    int next = (history_current + 1) % MAX_HISTORY_ENTRIES;
     if (next != history_index) {
         history_current = next;
         strcpy(input_buffer, history[history_current]);
-        input_index = strlen(input_buffer);
-        cursor_pos = input_index;
+        input_index = cursor_pos = strlen(input_buffer);
         shell_draw_input_line();
     } else {
         shell_clear_input();
+        history_current = history_index;
     }
-}
-
-char *input(char received) {
-    if (received == '\n' || received == '\r') {
-        input_buffer[input_index] = '\0';
-        
-        strncpy(command_buffer, input_buffer, sizeof(command_buffer) - 1);
-        command_buffer[sizeof(command_buffer) - 1] = '\0';
-        
-        if (strlen(command_buffer) > 0) {
-            shell_add_to_history(command_buffer);
-        }
-        
-        shell_newline();
-        shell_clear_input();
-        
-        return command_buffer;
-    }
-    else if (received == '\b' || received == 127) {
-        shell_backspace();
-        return NULL;
-    }
-    else if (received == 3) {
-        shell_cancel_input();
-        return NULL;
-    }
-    else if (received == 4) {
-        shell_delete();
-        return NULL;
-    }
-    else if (received == 1) {
-        shell_move_cursor_home();
-        return NULL;
-    }
-    else if (received == 5) {
-        shell_move_cursor_end();
-        return NULL;
-    }
-    else if (received == 12) {
-        clear_screen(bg_color);
-        shell_x = 0;
-        shell_y = 0;
-        shell_print_prompt();
-        shell_draw_input_line();
-        return NULL;
-    }
-    else if (received == 27) {
-        return NULL;
-    }
-    else if (received >= 32 && received <= 126 && input_index < (int)(sizeof(input_buffer) - 1)) {
-        for (int i = input_index; i > cursor_pos; i--) {
-            input_buffer[i] = input_buffer[i - 1];
-        }
-        input_buffer[cursor_pos] = received;
-        cursor_pos++;
-        input_index++;
-        input_buffer[input_index] = '\0';
-        shell_draw_input_line();
-        return NULL;
-    }
-    return NULL;
 }
 
 void shell_cancel_input(void) {
@@ -327,16 +263,104 @@ void shell_cancel_input(void) {
     shell_draw_input_line();
 }
 
-void parse_args(const char *command, char args[][32], int *argc) {
+char *input(char received) {
+    switch (received) {
+        case '\n':
+        case '\r':
+            input_buffer[input_index] = '\0';
+            strncpy(command_buffer, input_buffer, sizeof(command_buffer) - 1);
+            command_buffer[sizeof(command_buffer) - 1] = '\0';
+            if (strlen(command_buffer) > 0) {
+                shell_add_to_history(command_buffer);
+            }
+            shell_newline();
+            shell_clear_input();
+            return command_buffer;
+            
+        case '\b':
+        case 127:
+            shell_backspace();
+            return NULL;
+            
+        case 3:  // Ctrl+C
+            shell_cancel_input();
+            return NULL;
+            
+        case 4:  // Ctrl+D
+            shell_delete();
+            return NULL;
+            
+        case 1:  // Ctrl+A
+            shell_move_cursor_home();
+            return NULL;
+            
+        case 5:  // Ctrl+E
+            shell_move_cursor_end();
+            return NULL;
+            
+        case 12:  // Ctrl+L
+            clear_screen(bg_color);
+            move_cursor_to(0, 0);
+            shell_print_prompt();
+            shell_draw_input_line();
+            return NULL;
+            
+        case 11:  // Ctrl+K
+            input_buffer[cursor_pos] = '\0';
+            input_index = cursor_pos;
+            shell_draw_input_line();
+            return NULL;
+            
+        case 21:  // Ctrl+U
+            shell_clear_input();
+            return NULL;
+            
+        case 23:  // Ctrl+W
+            if (cursor_pos > 0) {
+                int start = cursor_pos - 1;
+                while (start > 0 && input_buffer[start] == ' ') start--;
+                while (start > 0 && input_buffer[start] != ' ') start--;
+                if (input_buffer[start] == ' ') start++;
+                
+                int chars_to_remove = cursor_pos - start;
+                for (int i = start; i < input_index - chars_to_remove; i++) {
+                    input_buffer[i] = input_buffer[i + chars_to_remove];
+                }
+                input_index -= chars_to_remove;
+                cursor_pos = start;
+                input_buffer[input_index] = '\0';
+                shell_draw_input_line();
+            }
+            return NULL;
+            
+        case 27:  // Escape
+            return NULL;
+            
+        default:
+            if (received >= 32 && received <= 126 && input_index < MAX_INPUT_LENGTH - 1) {
+                for (int i = input_index; i > cursor_pos; i--) {
+                    input_buffer[i] = input_buffer[i - 1];
+                }
+                input_buffer[cursor_pos] = received;
+                cursor_pos++;
+                input_index++;
+                input_buffer[input_index] = '\0';
+                shell_draw_input_line();
+            }
+            return NULL;
+    }
+}
+
+static void parse_args(const char *command, char args[][32], int *argc) {
     *argc = 0;
     int i = 0, j = 0;
     
-    while (command[i] && *argc < 8) {
-        while (command[i] == ' ') i++;
+    while (command[i] && *argc < MAX_ARGS) {
+        while (command[i] == ' ' || command[i] == '\t') i++;
         if (!command[i]) break;
         
         j = 0;
-        while (command[i] && command[i] != ' ' && j < 31) {
+        while (command[i] && command[i] != ' ' && command[i] != '\t' && j < MAX_ARG_LENGTH - 1) {
             args[*argc][j++] = command[i++];
         }
         args[*argc][j] = '\0';
@@ -344,20 +368,25 @@ void parse_args(const char *command, char args[][32], int *argc) {
     }
 }
 
-void cmd_help(int argc __attribute__((unused)), char args[][32] __attribute__((unused))) {
-    shell_print("Available commands:\n");
-    shell_print("  hello [name]  - Display greeting\n");
-    shell_print("  help          - Show this help message\n");
-    shell_print("  clear         - Clear the screen\n");
-    shell_print("  echo <text>   - Echo text to screen\n");
-    shell_print("  history       - Show command history\n");
-    shell_print("  uptime        - Show system uptime\n");
-    shell_print("  exit          - Exit the shell\n");
-    shell_print("\nNavigation:\n");
-    shell_print("  Ctrl+C        - Cancel current input\n");
-    shell_print("  Ctrl+L        - Clear screen\n");
-    shell_print("  Ctrl+A        - Move to beginning of line\n");
-    shell_print("  Ctrl+E        - Move to end of line\n");
+void cmd_help(void) {
+    shell_print("Available commands:\n"
+               "  hello [name]  - Display greeting\n"
+               "  help          - Show this help message\n"
+               "  clear         - Clear the screen\n"
+               "  echo <text>   - Echo text to screen\n"
+               "  history       - Show command history\n"
+               "  uptime        - Show system uptime\n"
+               "  exit          - Exit the shell\n"
+               "\nNavigation:\n"
+               "  Ctrl+C        - Cancel current input\n"
+               "  Ctrl+L        - Clear screen\n"
+               "  Ctrl+A        - Move to beginning of line\n"
+               "  Ctrl+E        - Move to end of line\n"
+               "  Ctrl+K        - Kill to end of line\n"
+               "  Ctrl+U        - Kill entire line\n"
+               "  Ctrl+W        - Kill word backward\n"
+               "  Left/Right    - Move cursor\n"
+               "  Home/End      - Move to line start/end\n");
 }
 
 void cmd_hello(int argc, char args[][32]) {
@@ -366,14 +395,13 @@ void cmd_hello(int argc, char args[][32]) {
         shell_print(args[1]);
         shell_print("!\n");
     } else {
-        shell_print("Hello world!\n");
+        shell_print("Hello, World!\n");
     }
 }
 
-void cmd_clear(int argc __attribute__((unused)), char args[][32] __attribute__((unused))) {
+void cmd_clear(void) {
     clear_screen(bg_color);
-    shell_x = 0;
-    shell_y = 0;
+    move_cursor_to(0, 0);
 }
 
 void cmd_echo(int argc, char args[][32]) {
@@ -389,36 +417,39 @@ void cmd_echo(int argc, char args[][32]) {
     shell_print("\n");
 }
 
-void cmd_history(int argc __attribute__((unused)), char args[][32] __attribute__((unused))) {
+void cmd_history(void) {
     shell_print("Command history:\n");
-    for (int i = 0; i < 10; i++) {
-        int idx = (history_index + i) % 10;
+    int count = 0;
+    for (int i = 0; i < MAX_HISTORY_ENTRIES; i++) {
+        int idx = (history_index + i) % MAX_HISTORY_ENTRIES;
         if (strlen(history[idx]) > 0) {
             shell_print("  ");
             shell_print(history[idx]);
             shell_print("\n");
+            count++;
         }
+    }
+    if (count == 0) {
+        shell_print("  (no commands in history)\n");
     }
 }
 
-void cmd_uptime(int argc __attribute__((unused)), char args[][32] __attribute__((unused))) {
-    shell_print("System uptime: ");
-    shell_print("Unknown");
-    shell_print("\n");
+void cmd_uptime(void) {
+    shell_print("System uptime: Unknown (uptime not implemented)\n");
 }
 
-void cmd_exit(int argc __attribute__((unused)), char args[][32] __attribute__((unused))) {
+void cmd_exit(void) {
     shell_success("Goodbye!");
 }
 
 void parse_command(void) {
-    if (command_buffer[0] == '\0') {
+    if (!command_buffer[0]) {
         shell_print_prompt();
         shell_draw_input_line();
         return;
     }
     
-    char args[8][32];
+    char args[MAX_ARGS][MAX_ARG_LENGTH];
     int argc;
     parse_args(command_buffer, args, &argc);
     
@@ -431,17 +462,17 @@ void parse_command(void) {
     if (strcmp(args[0], "hello") == 0) {
         cmd_hello(argc, args);
     } else if (strcmp(args[0], "help") == 0) {
-        cmd_help(argc, args);
+        cmd_help();
     } else if (strcmp(args[0], "clear") == 0) {
-        cmd_clear(argc, args);
+        cmd_clear();
     } else if (strcmp(args[0], "echo") == 0) {
         cmd_echo(argc, args);
     } else if (strcmp(args[0], "history") == 0) {
-        cmd_history(argc, args);
+        cmd_history();
     } else if (strcmp(args[0], "uptime") == 0) {
-        cmd_uptime(argc, args);
+        cmd_uptime();
     } else if (strcmp(args[0], "exit") == 0) {
-        cmd_exit(argc, args);
+        cmd_exit();
         return;
     } else {
         shell_error("Unknown command");

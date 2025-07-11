@@ -12,7 +12,7 @@ void play_sound(uint32_t Freq) {
     outb(0x42, (uint8_t) (Div) );
     outb(0x42, (uint8_t) (Div >> 8));
 
-    // Player the sound using the pc speaker
+    // Play the sound using the pc speaker
     tmp = inb(0x61);
     if (tmp != (tmp | 3)) {
         outb(0x61, tmp | 3);

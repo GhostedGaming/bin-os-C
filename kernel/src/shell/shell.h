@@ -10,6 +10,7 @@ void shell_scroll_up(void);
 void shell_print(const char *text);
 void shell_backspace(void);
 void shell_cancel_input(void);
+void cmd_clear(void);
 
 char *input(char received);
 void parse_command(void);

@@ -1,14 +1,9 @@
-#include <stddef.h>
 #include "../../serial/serial.h"
 #include "../../io.h"
-#include "../../draw/draw.h"
-#include "../../font.h"
-#include "../keyboard/keyboard.h"
 #include "../interrupts/idt.h"
-#include "stdbool.h"
 #include "keyboard.h"
-#include "../../pc_speaker/speaker.h"
 #include "../../shell/shell.h"
+#include "../../draw/draw.h"
 
 #define KB_DATA_PORT    0x60
 #define KB_STATUS_PORT  0x64
@@ -17,13 +12,6 @@
 #define KB_STATUS_OUTPUT_FULL   0x01
 #define KB_STATUS_INPUT_FULL    0x02
 #define KB_ENABLE_KEYBOARD      0xAE
-
-#define COLOR_WHITE     rgb_to_color(255, 255, 255)
-#define COLOR_BLACK     rgb_to_color(0, 0, 0)
-#define COLOR_GREEN     rgb_to_color(0, 255, 0)
-#define COLOR_RED       rgb_to_color(255, 0, 0)
-#define COLOR_BLUE      rgb_to_color(0, 0, 255)
-#define COLOR_YELLOW    rgb_to_color(255, 255, 0)
 
 typedef enum {
     KEY_UNKNOWN = 0,
@@ -55,10 +43,10 @@ typedef enum {
     KEY_RIGHT = 147,
     KEY_INSERT = 148,
     KEY_DELETE = 149,
-    KEY_BACKSPACE = '\b',    // 8
-    KEY_TAB = '\t',          // 9 - now no conflict
-    KEY_ENTER = '\n',        // 10
-    KEY_SPACE = ' '          // 32
+    KEY_BACKSPACE = '\b',
+    KEY_TAB = '\t',
+    KEY_ENTER = '\n',
+    KEY_SPACE = ' '
 } special_key_t;
 
 static bool caps_lock_on = false;
@@ -153,11 +141,10 @@ static void handle_special_key(uint8_t key, bool pressed) {
             break;
             
         case KEY_LEFT:
-            serial_printf("[LEFT]\r\n");
+            move_cursor_left(1);
             break;
-            
         case KEY_RIGHT:
-            serial_printf("[RIGHT]\r\n");
+            move_cursor_right(1);
             break;
             
         case KEY_INSERT:
@@ -223,9 +210,13 @@ static void handle_printable_key(uint8_t key, bool pressed) {
                 break;
             case 'l':
             case 'L':
-                clear_screen(rgb_to_color(0, 0, 0));
+                shell_cancel_input();
+                cmd_clear();
                 shell_print_prompt();
                 break;
+            case 'a':
+            case 'A':
+
             default:
                 break;
         }

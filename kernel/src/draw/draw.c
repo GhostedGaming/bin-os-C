@@ -15,27 +15,26 @@ uint32_t *fb_ptr = NULL;
 int fb_width = 0;
 int fb_height = 0;
 int fb_pitch = 0;
-uint16_t cursor_position_x = 0;  // Changed to uint16_t for better range
+uint16_t cursor_position_x = 0;
 uint16_t cursor_position_y = 0;
 
 // Forward declaration for hcf function
 void hcf(void);
 
 uint16_t move_cursor_right(uint16_t amount) {
-    // Add bounds checking to prevent cursor from going off screen
     if (cursor_position_x + amount < fb_width) {
-        cursor_position_x += amount;  // Fixed: was missing assignment operator
+        cursor_position_x += amount;
     } else {
-        cursor_position_x = fb_width - 1;  // Clamp to screen edge
+        cursor_position_x = fb_width - 1;
     }
     return cursor_position_x;
 }
 
 uint16_t move_cursor_up(uint16_t amount) {
     if (cursor_position_y >= amount) {
-        cursor_position_y -= amount;  // Move up means subtract from y
+        cursor_position_y -= amount;
     } else {
-        cursor_position_y = 0;  // Clamp to top of screen
+        cursor_position_y = 0;
     }
     return cursor_position_y;
 }
@@ -86,7 +85,6 @@ static int string_length(const char *str) {
     return len;
 }
 
-// Fixed: Added missing x parameter to match header declaration
 void draw_char(int x, int y, const uint8_t *char_bitmap, uint32_t color) {
     if (!char_bitmap) return;
     
@@ -105,7 +103,6 @@ void draw_char(int x, int y, const uint8_t *char_bitmap, uint32_t color) {
     }
 }
 
-// Fixed: Added missing x parameter to match header declaration
 void draw_char_with_bg(int x, int y, const uint8_t *char_bitmap, uint32_t fg_color, uint32_t bg_color) {
     if (!char_bitmap) return;
     
@@ -221,11 +218,36 @@ void remove_rect(int x, int y, int width, int height, uint32_t bg_color) {
     }
 }
 
+// Helper functions to make my life easier
+
+void set_cursor_pos(uint16_t x, uint16_t y) {
+    move_cursor_to(x, y);
+}
+
+void move_cursor_by_chars(uint16_t chars) {
+    if (chars > 0) {
+        move_cursor_right(chars * FONT_WIDTH);
+    } else if (chars < 0) {
+        move_cursor_left((-chars) * FONT_WIDTH);
+    }
+}
+
+void move_cursor_by_lines(uint16_t lines) {
+    if (lines > 0) {
+        move_cursor_down(lines * FONT_HEIGHT);
+    } else if (lines < 0) {
+        move_cursor_up((-lines) * FONT_HEIGHT);
+    }
+}
+
+void cursor_newline(void) {
+    move_cursor_to(0, cursor_position_y + FONT_HEIGHT);
+}
+
 uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b) {
     return (0xFF << 24) | (r << 16) | (g << 8) | b;
 }
 
-// Additional utility functions
 uint16_t get_cursor_x(void) {
     return cursor_position_x;
 }
