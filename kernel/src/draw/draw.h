@@ -12,6 +12,28 @@ extern struct {
     uint64_t y;
 } cursor;
 
+typedef struct {
+    uint16_t type;        // "BM" 
+    uint32_t size;        // File size
+    uint16_t reserved1;
+    uint16_t reserved2;
+    uint32_t offset;      // Offset to pixel data
+} __attribute__((packed)) bmp_header_t;
+
+typedef struct {
+    uint32_t size;        // Header size
+    int32_t width;        // Image width
+    int32_t height;       // Image height
+    uint16_t planes;      // Must be 1
+    uint16_t bits;        // Bits per pixel
+    uint32_t compression; // Compression type
+    uint32_t imagesize;   // Image size
+    int32_t xresolution;  // Pixels per meter
+    int32_t yresolution;  // Pixels per meter
+    uint32_t ncolours;    // Number of colours
+    uint32_t importantcolours; // Important colours
+} __attribute__((packed)) bmp_info_t;
+
 // External declarations for global framebuffer variables
 extern struct limine_framebuffer *framebuffer;
 extern uint32_t *fb_ptr;
@@ -41,8 +63,8 @@ void draw_rect(int x, int y, int width, int height, uint32_t color);
 void remove_rect(int x, int y, int width, int height, uint32_t bg_color);
 
 void set_cursor_pos(uint16_t x, uint16_t y);
-void move_cursor_by_chars(uint16_t chars);
-void move_cursor_by_lines(uint16_t lines);
+void move_cursor_by_chars(int chars);
+void move_cursor_by_lines(int lines);
 void cursor_newline(void);
 uint32_t rgb_to_color(uint8_t r, uint8_t g, uint8_t b);
 uint16_t get_cursor_x(void);

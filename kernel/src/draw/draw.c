@@ -224,7 +224,7 @@ void set_cursor_pos(uint16_t x, uint16_t y) {
     move_cursor_to(x, y);
 }
 
-void move_cursor_by_chars(uint16_t chars) {
+void move_cursor_by_chars(int chars) {
     if (chars > 0) {
         move_cursor_right(chars * FONT_WIDTH);
     } else if (chars < 0) {
@@ -232,7 +232,7 @@ void move_cursor_by_chars(uint16_t chars) {
     }
 }
 
-void move_cursor_by_lines(uint16_t lines) {
+void move_cursor_by_lines(int lines) {
     if (lines > 0) {
         move_cursor_down(lines * FONT_HEIGHT);
     } else if (lines < 0) {

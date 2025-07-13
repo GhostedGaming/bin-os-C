@@ -30,15 +30,15 @@ unsigned char bcd_to_binary(unsigned char bcd) {
     return ((bcd & 0xF0) >> 1) + ((bcd & 0xF0) >> 3) + (bcd & 0x0F);
 }
 
-void read_rtc_time(unsigned char *second, unsigned char *minute, unsigned char *hour, 
+void read_rtc_time(unsigned char *second, unsigned char *minute, unsigned char *hour,
                    unsigned char *day, unsigned char *month, unsigned char *year) {
     write_serial("read_rtc_time");
     unsigned char century;
     unsigned char last_second, last_minute, last_hour, last_day, last_month, last_year, last_century;
     unsigned char registerB;
-
+    
     wait_for_rtc_update();
-
+    
     do {
         last_second = read_rtc_register(RTC_SECONDS);
         last_minute = read_rtc_register(RTC_MINUTES);
@@ -47,9 +47,9 @@ void read_rtc_time(unsigned char *second, unsigned char *minute, unsigned char *
         last_month = read_rtc_register(RTC_MONTH);
         last_year = read_rtc_register(RTC_YEAR);
         last_century = read_rtc_register(RTC_CENTURY);
-
+        
         wait_for_rtc_update();
-
+        
         *second = read_rtc_register(RTC_SECONDS);
         *minute = read_rtc_register(RTC_MINUTES);
         *hour = read_rtc_register(RTC_HOURS);
@@ -60,9 +60,9 @@ void read_rtc_time(unsigned char *second, unsigned char *minute, unsigned char *
     } while ((last_second != *second) || (last_minute != *minute) || (last_hour != *hour) ||
              (last_day != *day) || (last_month != *month) || (last_year != *year) ||
              (last_century != century));
-
+    
     registerB = read_rtc_register(RTC_REG_B);
-
+    
     if (!(registerB & 0x04)) {
         *second = bcd_to_binary(*second);
         *minute = bcd_to_binary(*minute);
@@ -72,11 +72,11 @@ void read_rtc_time(unsigned char *second, unsigned char *minute, unsigned char *
         *year = bcd_to_binary(*year);
         century = bcd_to_binary(century);
     }
-
+    
     if (!(registerB & 0x02) && (*hour & 0x80)) {
         *hour = ((*hour & 0x7F) + 12) % 24;
     }
-
+    
     if (century == 0) century = 20;
     *year += century * 100;
 }
@@ -126,4 +126,90 @@ void init_rtc() {
 void wait_for_rtc_interrupt() {
     rtc_interrupt_received = 0;
     while (!rtc_interrupt_received);
+}
+
+void get_rtc_time_12hour(char *time_str) {
+    unsigned char second, minute, hour, day, month, year;
+    
+    read_rtc_time(&second, &minute, &hour, &day, &month, &year);
+    
+    unsigned char display_hour = hour;
+    char am_pm[3];
+    
+    if (hour == 0) {
+        display_hour = 12;
+        am_pm[0] = 'A';
+        am_pm[1] = 'M';
+    } else if (hour < 12) {
+        am_pm[0] = 'A';
+        am_pm[1] = 'M';
+    } else if (hour == 12) {
+        am_pm[0] = 'P';
+        am_pm[1] = 'M';
+    } else {
+        display_hour = hour - 12;
+        am_pm[0] = 'P';
+        am_pm[1] = 'M';
+    }
+    am_pm[2] = '\0';
+    
+    time_str[0] = (display_hour / 10) + '0';
+    time_str[1] = (display_hour % 10) + '0';
+    time_str[2] = ':';
+    time_str[3] = (minute / 10) + '0';
+    time_str[4] = (minute % 10) + '0';
+    time_str[5] = ':';
+    time_str[6] = (second / 10) + '0';
+    time_str[7] = (second % 10) + '0';
+    time_str[8] = ' ';
+    time_str[9] = am_pm[0];
+    time_str[10] = am_pm[1];
+    time_str[11] = '\0';
+}
+
+void get_rtc_time_12hour_components(unsigned char *hour_12, unsigned char *minute, 
+                                   unsigned char *second, char *am_pm) {
+    unsigned char second_temp, minute_temp, hour_temp, day, month, year;
+    
+    read_rtc_time(&second_temp, &minute_temp, &hour_temp, &day, &month, &year);
+    
+    *minute = minute_temp;
+    *second = second_temp;
+    
+    if (hour_temp == 0) {
+        *hour_12 = 12;
+        am_pm[0] = 'A';
+        am_pm[1] = 'M';
+    } else if (hour_temp < 12) {
+        *hour_12 = hour_temp;
+        am_pm[0] = 'A';
+        am_pm[1] = 'M';
+    } else if (hour_temp == 12) {
+        *hour_12 = 12;
+        am_pm[0] = 'P';
+        am_pm[1] = 'M';
+    } else {
+        *hour_12 = hour_temp - 12;
+        am_pm[0] = 'P';
+        am_pm[1] = 'M';
+    }
+    am_pm[2] = '\0';
+}
+
+void display_current_time() {
+    char time_string[12];
+    
+    get_rtc_time_12hour(time_string);
+    write_serial("Current time: ");
+    write_serial(time_string);
+    write_serial("\n");
+}
+
+void display_time_components() {
+    unsigned char hour, minute, second;
+    char am_pm[3];
+    
+    get_rtc_time_12hour_components(&hour, &minute, &second, am_pm);
+    
+    write_serial("Time: ");
 }

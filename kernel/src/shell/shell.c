@@ -52,7 +52,7 @@ void shell_init(void) {
 }
 
 static void shell_print_welcome(void) {
-    shell_print("Binbows Installer v1.1\nType 'help' for available commands.\n\n");
+    shell_print("Binbows Installer v1.2\nType 'help' for available commands.\n\n");
 }
 
 void shell_print_prompt(void) {

@@ -14,6 +14,8 @@
 #include "pc_speaker/speaker.h"
 #include "cpu/cpuid/cpuid.h"
 #include "shell/shell.h"
+#include "timing/rtc/rtc.h"
+#include "utility.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -88,9 +90,16 @@ void test_memory_allocator(void) {
     serial_printf("Memory allocator test completed\r\n");
 }
 
+int i = 0;
+
+void update_screen() {
+    i++;
+    clear_screen(rgb_to_color(0, 0, 0));
+    draw_string_center_screen(to_string(i), rgb_to_color(255, 255, 255));
+}
+
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
-    uint32_t text_color = rgb_to_color(255, 255, 255);
     
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
@@ -132,7 +141,11 @@ void kmain(void) {
 
     shell_init();
 
+    display_current_time();
+
     while (1) {
         __asm__ volatile ("hlt");
+        update_screen();
+        timer_wait_seconds(1);
     }
 }

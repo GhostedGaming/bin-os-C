@@ -29,5 +29,7 @@ void disable_irq8(void);
 void set_rtc_frequency(unsigned char rate);
 void init_rtc(void);
 void wait_for_rtc_interrupt(void);
+void display_current_time();
+void display_time_components();
 
 #endif
