@@ -145,7 +145,5 @@ void kmain(void) {
 
     while (1) {
         __asm__ volatile ("hlt");
-        update_screen();
-        timer_wait_seconds(1);
     }
 }
