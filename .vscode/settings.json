@@ -11,5 +11,6 @@
         "stdbool.h": "c",
         "cpuid.h": "c",
         "stdint.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

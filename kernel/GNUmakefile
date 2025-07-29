@@ -60,6 +60,7 @@ override CFLAGS += \
 # Internal C preprocessor flags that should not be changed by the user.
 override CPPFLAGS := \
     -I src \
+    -I src/uacpi/include \
     -isystem freestnd-c-hdrs \
     $(CPPFLAGS) \
     -DLIMINE_API_REVISION=3 \

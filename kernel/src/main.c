@@ -7,7 +7,7 @@
 #include "cpu/interrupts/idt.h"
 #include "cpu/gdt/gdt.h"
 #include "cpu/pic/pic.h"
-#include "cpu/keyboard/keyboard.h"
+#include "ps2_keyboard/keyboard.h"
 #include "serial/serial.h"
 #include "timing/timer.h"
 #include "memory.h"
@@ -16,6 +16,8 @@
 #include "shell/shell.h"
 #include "timing/rtc/rtc.h"
 #include "utility.h"
+#include "pci/pci.h"
+#include "acpi/acpi.h"
 
 __attribute__((used, section(".limine_requests")))
 static volatile LIMINE_BASE_REVISION(3);
@@ -90,60 +92,57 @@ void test_memory_allocator(void) {
     serial_printf("Memory allocator test completed\r\n");
 }
 
-int i = 0;
-
-void update_screen() {
-    i++;
-    clear_screen(rgb_to_color(0, 0, 0));
-    draw_string_center_screen(to_string(i), rgb_to_color(255, 255, 255));
-}
-
 void kmain(void) {
     uint32_t background_color = rgb_to_color(0, 0, 0);
-    
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         hcf();
     }
-    
+
     init_serial();
     init_framebuffer();
     
+    // Clear screen
     for (int y = 0; y < fb_height; y++) {
         for (int x = 0; x < fb_width; x++) {
             fb_ptr[y * fb_pitch + x] = background_color;
         }
     }
-    
+
     serial_printf("Initializing memory allocator...\r\n");
     init_heap();
     serial_printf("Memory allocator initialized\r\n");
-    
+
     gdt_init();
     gdt_load();
     serial_printf("GDT loaded\r\n");
-    
+
     idt_init();
     install_exceptions();
     init_timer_irq();
     init_keyboard_irq();
     idt_load();
     init_pic();
+    
+    serial_printf("Initializing ACPI...\r\n");
+    if (acpi_init() != 0) {
+        serial_printf("ACPI initialization failed\r\n");
+        hcf();
+    } else {
+        serial_printf("ACPI initialized successfully\r\n");
+    }
+
     init_timer();
     init_keyboard();
     init_timer_interrupts();
-    
     print_vendor();
-    
-    __asm__ volatile ("sti");
+    asm volatile ("sti");
     write_serial("Interrupts enabled");
-    
+
     test_memory_allocator();
-
     shell_init();
-
     display_current_time();
 
     while (1) {
-        __asm__ volatile ("hlt");
+        asm volatile ("hlt");
     }
 }

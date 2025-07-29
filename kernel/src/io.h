@@ -17,4 +17,10 @@ static inline void io_wait(void) {
     outb(0x80, 0);
 }
 
+static inline uint32_t inl(uint16_t port) {
+    uint32_t result;
+    asm volatile ("inl %1, %0" : "=a"(result) : "Nd"(port));
+    return result;
+}
+
 #endif

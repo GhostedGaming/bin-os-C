@@ -3,7 +3,7 @@
 #include "idt.h"
 #include "../pic/pic.h"
 #include "../../serial/serial.h"
-#include "../keyboard/keyboard.h"
+#include "../../ps2_keyboard/keyboard.h"
 #include "../../timing/timer.h"
 
 // IDT definition
@@ -21,7 +21,7 @@ extern void isr30(void), isr31(void);
 extern void irq0(void); // Timer
 extern void irq1(void); // Keyboard
 
-// === IDT Setup Helper ===
+// IDT Setup Helper 
 static void idt_add_entry(uint8_t vector, void* isr, uint8_t flags) {
     uint64_t addr = (uint64_t)isr;
     idt[vector].isr_low = addr & 0xFFFF;
@@ -33,7 +33,6 @@ static void idt_add_entry(uint8_t vector, void* isr, uint8_t flags) {
     idt[vector].reserved = 0;
 }
 
-// === Initialize Only CPU Exceptions (0–31) ===
 void install_exceptions(void) {
     void (*exceptions[])(void) = {
         isr0, isr1, isr2, isr3, isr4, isr5, isr6, isr7,
@@ -49,7 +48,6 @@ void install_exceptions(void) {
     write_serial("IDT: CPU exception handlers installed\n");
 }
 
-// === Install Specific IRQs ===
 void install_irq_common(uint8_t irq_vector, void* handler) {
     idt_add_entry(irq_vector, handler, 0x8E);
 }
@@ -64,7 +62,6 @@ void init_keyboard_irq(void) {
     write_serial("IDT: Keyboard interrupt (IRQ1) installed\n");
 }
 
-// === IDT Initialization ===
 void idt_init(void) {
     for (int i = 0; i < 256; i++) {
         idt[i] = (idt_entry_t){0};
@@ -96,7 +93,24 @@ void isr_handler(uint64_t interrupt_number) {
     __asm__ volatile ("cli; hlt");
 }
 
-// === IRQ Handler (called from irq.asm) ===
+int install_irq_handler(uint8_t irq, void (*handler)(void*), void* ctx) {
+    // Convert IRQ number to interrupt vector (IRQ0 = vector 32, etc.)
+    uint8_t vector = irq + 32;
+    
+    if (vector >= 256) {
+        write_serial("IDT: Invalid IRQ number for installation\n");
+        return 1; // Failure
+    }
+
+    install_irq_common(vector, handler);
+    
+    // Enable the IRQ in the PIC
+    pic_enable_irq(irq);
+    
+    write_serial("IDT: Dynamic IRQ handler installed\n");
+    return 0; // Success
+}
+
 void irq_handler(uint64_t irq_number) {
     switch(irq_number) {
         case 32: // IRQ0 - Timer
@@ -105,7 +119,7 @@ void irq_handler(uint64_t irq_number) {
             // write_serial("Timer tick\n");
             break;
         case 33: // IRQ1 - Keyboard  
-            write_serial("Keyboard IRQ received\n"); // Add this debug line
+            write_serial("Keyboard IRQ received\n");
             keyboard_handler(NULL);
             break;
         default:

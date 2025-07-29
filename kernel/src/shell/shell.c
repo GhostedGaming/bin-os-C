@@ -157,6 +157,8 @@ void shell_print(const char *text) {
 void shell_error(const char *text) {
     shell_print_color("Error: ", error_color);
     shell_print(text);
+    shell_print(": ");
+    shell_print(command_buffer);
     shell_print("\n");
 }
 

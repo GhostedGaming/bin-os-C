@@ -1,9 +1,9 @@
-#include "../../serial/serial.h"
-#include "../../io.h"
-#include "../interrupts/idt.h"
 #include "keyboard.h"
-#include "../../shell/shell.h"
-#include "../../draw/draw.h"
+#include "../serial/serial.h"
+#include "../io.h"
+#include "cpu/interrupts/idt.h"
+#include "../shell/shell.h"
+#include "../draw/draw.h"
 
 #define KB_DATA_PORT    0x60
 #define KB_STATUS_PORT  0x64
@@ -141,10 +141,10 @@ static void handle_special_key(uint8_t key, bool pressed) {
             break;
             
         case KEY_LEFT:
-            move_cursor_left(1);
+            shell_move_cursor_left();
             break;
         case KEY_RIGHT:
-            move_cursor_right(1);
+            shell_move_cursor_right();
             break;
             
         case KEY_INSERT:
